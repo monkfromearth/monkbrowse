@@ -18,6 +18,7 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "package:extension": "turbo run package --filter=@monkbrowse/extension",
+    "doctor": "bun run --cwd apps/server doctor",
     "dev:server": "turbo run dev --filter=@monkbrowse/server",
     "dev:extension": "turbo run dev --filter=@monkbrowse/extension"
   },

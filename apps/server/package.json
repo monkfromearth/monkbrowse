@@ -12,6 +12,7 @@
   "scripts": {
     "test": "bun test",
     "dev": "bun run --watch src/index.ts",
+    "doctor": "bun run src/doctor.ts",
     "build": "tsup && shx chmod +x dist/*.js",
     "typecheck": "tsc --noEmit",
     "inspector": "bunx @modelcontextprotocol/inspector bun dist/index.js"

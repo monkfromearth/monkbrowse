@@ -103,6 +103,7 @@ bun install
 bun run typecheck          # turbo, all packages + apps
 bun run test               # bun test — unit + server integration (no browser needed)
 bun run build              # server → apps/server/dist ; extension → apps/extension/dist/chrome-mv3
+bun run doctor             # bare server that prints which Chrome profiles connect (connectivity check)
 bun run dev:server         # bun --watch on the server
 bun run dev:extension      # wxt dev
 bun run package:extension  # wxt zip for the Chrome Web Store

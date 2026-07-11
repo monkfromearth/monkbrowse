@@ -21,7 +21,7 @@ async function bg(kind: string): Promise<unknown> {
 
 function paintStatus(connected: boolean): void {
   pill.classList.toggle("live", connected);
-  statusText.textContent = connected ? "Connected" : "Offline";
+  statusText.textContent = connected ? "Connected" : "Not connected";
 }
 
 async function refreshStatus(): Promise<void> {
@@ -50,10 +50,9 @@ function renderTabs(tabs: TabInfo[]): void {
   tabs
     .slice()
     .sort((a, b) => a.slot - b.slot)
-    .forEach((t, i) => {
+    .forEach((t) => {
       const row = document.createElement("div");
       row.className = `row${t.active ? " active" : ""}`;
-      row.style.animationDelay = `${i * 22}ms`;
 
       const badge = document.createElement("div");
       badge.className = "badge";

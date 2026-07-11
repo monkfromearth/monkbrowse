@@ -41,11 +41,35 @@ Options (rarely needed): `--base-port <n>` (default `9222`) and `--ports <count>
 1. Open `chrome://extensions`.
 2. Turn on **Developer mode** (top right).
 3. **Load unpacked** → select `apps/extension/dist/chrome-mv3`.
-4. The **monkbrowse** icon appears in the toolbar. Click it → **Settings**.
-5. Set a **Port** (e.g. `9222`) and a **Label** (e.g. `Work`). Save.
-6. The toolbar badge shows **on** when the extension is connected to the server.
+4. Click the **monkbrowse** toolbar icon — the popup opens.
+5. Set a **Port** (e.g. `9222`) and a **Label** (e.g. `Work`), click **Connect**.
+6. The status reads **Connected** once it reaches a running server.
 
-Now ask your AI to run `browser_list_tabs` — it should list that profile's tabs.
+> **A server must be running for it to connect.** The extension alone connects
+> to nothing. Your MCP client starts the server when it launches — but to check
+> the connection on its own, run the doctor (next).
+
+## Quick check — is the extension connecting?
+
+Run the doctor. It's a bare server that just prints who connects:
+
+```bash
+bun run doctor
+```
+
+Load the extension (or click Connect), and you should see:
+
+```
+  [time] connected profiles:
+      ✓ Work  ·  port 9222  ·  12 tabs
+```
+
+If you see that, the browser half works — any remaining issue is on the MCP
+side (server not launched by your client, or a tool call). If you *don't*, open
+the extension's **offscreen** console (Step "Troubleshooting" below) to see why.
+Stop the doctor with Ctrl-C before starting your MCP client (one server per port).
+
+Then, with your MCP client running, ask your AI to run `browser_list_tabs`.
 
 ## 4. Add more profiles
 

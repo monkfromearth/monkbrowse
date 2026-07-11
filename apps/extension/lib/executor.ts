@@ -1,4 +1,6 @@
-import { isShared } from "./shares";
+import { wait } from "@monkbrowse/utils";
+
+import { isShared, setShared } from "./shares";
 import { enumerateSharedTabs } from "./tabs";
 
 /**
@@ -93,10 +95,82 @@ export async function execWire(
     case "browser_screenshot": {
       const tabId = await resolveTab(payload.tabId as number | undefined);
       const tab = await chrome.tabs.get(tabId);
+      // captureVisibleTab only grabs the active tab — bring the target to front.
+      if (!tab.active) {
+        await chrome.tabs.update(tabId, { active: true });
+        await wait(180);
+      }
       const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, {
         format: "png",
       });
       return { tabId, data: dataUrl.replace(/^data:image\/png;base64,/, "") };
+    }
+    case "browser_reload": {
+      const tabId = await resolveTab(payload.tabId as number | undefined);
+      await chrome.tabs.reload(tabId);
+      await waitForLoad(tabId);
+      return { tabId };
+    }
+    case "browser_scroll": {
+      const tabId = await resolveTab(payload.tabId as number | undefined);
+      await cs(tabId, {
+        kind: "scroll",
+        direction: payload.direction,
+        amount: payload.amount,
+        ref: payload.ref,
+      });
+      return { tabId };
+    }
+    case "browser_get_text": {
+      const tabId = await resolveTab(payload.tabId as number | undefined);
+      const r = (await cs(tabId, { kind: "get_text", ref: payload.ref })) as {
+        text: string;
+      };
+      return { tabId, text: r.text };
+    }
+    case "browser_evaluate": {
+      const tabId = await resolveTab(payload.tabId as number | undefined);
+      const r = (await cs(tabId, {
+        kind: "evaluate",
+        expression: payload.expression,
+      })) as { result: unknown };
+      return { tabId, result: r.result };
+    }
+    case "browser_drag": {
+      const tabId = await resolveTab(payload.tabId as number | undefined);
+      await cs(tabId, {
+        kind: "drag",
+        startRef: payload.startRef,
+        endRef: payload.endRef,
+      });
+      return { tabId };
+    }
+    case "browser_upload_file": {
+      const tabId = await resolveTab(payload.tabId as number | undefined);
+      await cs(tabId, {
+        kind: "upload",
+        ref: payload.ref,
+        name: payload.name,
+        data: payload.data,
+      });
+      return { tabId };
+    }
+    case "browser_new_tab": {
+      const created = await chrome.tabs.create({
+        url: payload.url ? String(payload.url) : undefined,
+      });
+      const tabId = created.id as number;
+      await setShared(tabId, true); // auto-share tabs the AI opens
+      if (payload.url) await waitForLoad(tabId);
+      const shared = await enumerateSharedTabs();
+      const info = shared.find((t) => t.tabId === tabId);
+      return { tabId, slot: info?.slot ?? 0 };
+    }
+    case "browser_close_tab": {
+      const tabId = await resolveTab(payload.tabId as number | undefined);
+      await setShared(tabId, false);
+      await chrome.tabs.remove(tabId);
+      return { tabId };
     }
     case "list_tabs": {
       return { tabs: await enumerateSharedTabs() };

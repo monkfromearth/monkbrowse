@@ -4,17 +4,27 @@ import type {
 } from "@modelcontextprotocol/sdk/types.js";
 import type { z } from "zod";
 
+import { readFile } from "node:fs/promises";
+import { basename } from "node:path";
+
 import {
   ClickTool,
+  CloseTabTool,
+  DragTool,
+  EvaluateTool,
   GetConsoleLogsTool,
+  GetTextTool,
   HoverTool,
   NavigateTool,
+  NewTabTool,
   PressKeyTool,
   ScreenshotTool,
+  ScrollTool,
   SelectOptionTool,
   SwitchTabTool,
   type TabInfo,
   TypeTool,
+  UploadFileTool,
   WaitTool,
 } from "@monkbrowse/protocol";
 import { wait } from "@monkbrowse/utils";
@@ -83,6 +93,13 @@ type WaitArgs = z.infer<typeof WaitTool.arguments>;
 type ConsoleArgs = z.infer<typeof GetConsoleLogsTool.arguments>;
 type ScreenshotArgs = z.infer<typeof ScreenshotTool.arguments>;
 type SwitchArgs = z.infer<typeof SwitchTabTool.arguments>;
+type ScrollArgs = z.infer<typeof ScrollTool.arguments>;
+type GetTextArgs = z.infer<typeof GetTextTool.arguments>;
+type EvaluateArgs = z.infer<typeof EvaluateTool.arguments>;
+type DragArgs = z.infer<typeof DragTool.arguments>;
+type UploadArgs = z.infer<typeof UploadFileTool.arguments>;
+type NewTabArgs = z.infer<typeof NewTabTool.arguments>;
+type CloseTabArgs = z.infer<typeof CloseTabTool.arguments>;
 
 /** name -> handler. Args are already zod-validated by the caller. */
 export const toolHandlers: Record<string, ToolHandler> = {
@@ -190,10 +207,26 @@ export const toolHandlers: Record<string, ToolHandler> = {
     });
   },
 
-  browser_wait: async (_ctx, raw) => {
+  browser_wait: async (ctx, raw) => {
     const args = raw as WaitArgs;
-    await wait(args.time * 1000);
-    return ok(`Waited for ${args.time} seconds`);
+    if (!args.text) {
+      const secs = args.time ?? 1;
+      await wait(secs * 1000);
+      return ok(`Waited for ${secs} seconds`);
+    }
+    const needle = args.text;
+    return onTab(ctx, args, async (conn, tabId) => {
+      const deadline = Date.now() + 15_000;
+      while (Date.now() < deadline) {
+        const res = await ctx.registry.send(conn, "browser_evaluate", {
+          expression: `!!document.body && document.body.innerText.includes(${JSON.stringify(needle)})`,
+          tabId,
+        });
+        if (res.result === true) return ok(`"${needle}" appeared`);
+        await wait(500);
+      }
+      return ok(`Timed out after 15s waiting for "${needle}"`);
+    });
   },
 
   browser_get_console_logs: (ctx, raw) => {
@@ -217,6 +250,117 @@ export const toolHandlers: Record<string, ToolHandler> = {
         ],
       };
     });
+  },
+
+  browser_reload: (ctx, raw) => {
+    const args = raw as { profile?: number | string; tab?: number };
+    return onTab(ctx, args, async (conn, tabId) => {
+      const res = await ctx.registry.send(conn, "browser_reload", { tabId });
+      const snap = await captureAriaSnapshot(ctx.registry, conn, res.tabId);
+      return ok("Reloaded", snap.content);
+    });
+  },
+
+  browser_scroll: (ctx, raw) => {
+    const args = raw as ScrollArgs;
+    return onTab(ctx, args, async (conn, tabId) => {
+      const res = await ctx.registry.send(conn, "browser_scroll", {
+        direction: args.direction,
+        amount: args.amount,
+        ref: args.ref,
+        tabId,
+      });
+      const snap = await captureAriaSnapshot(ctx.registry, conn, res.tabId);
+      return ok(
+        args.ref ? "Scrolled element into view" : `Scrolled ${args.direction ?? "down"}`,
+        snap.content,
+      );
+    });
+  },
+
+  browser_get_text: (ctx, raw) => {
+    const args = raw as GetTextArgs;
+    return onTab(ctx, args, async (conn, tabId) => {
+      const res = await ctx.registry.send(conn, "browser_get_text", {
+        ref: args.ref,
+        tabId,
+      });
+      return ok(res.text || "(no text)");
+    });
+  },
+
+  browser_evaluate: (ctx, raw) => {
+    const args = raw as EvaluateArgs;
+    return onTab(ctx, args, async (conn, tabId) => {
+      const res = await ctx.registry.send(conn, "browser_evaluate", {
+        expression: args.expression,
+        tabId,
+      });
+      return ok(
+        typeof res.result === "string"
+          ? res.result
+          : JSON.stringify(res.result, null, 2),
+      );
+    });
+  },
+
+  browser_drag: (ctx, raw) => {
+    const args = raw as DragArgs;
+    return onTab(ctx, args, async (conn, tabId) => {
+      const res = await ctx.registry.send(conn, "browser_drag", {
+        startRef: args.startRef,
+        endRef: args.endRef,
+        tabId,
+      });
+      const snap = await captureAriaSnapshot(ctx.registry, conn, res.tabId);
+      return ok(
+        `Dragged "${args.startElement}" onto "${args.endElement}"`,
+        snap.content,
+      );
+    });
+  },
+
+  browser_upload_file: (ctx, raw) => {
+    const args = raw as UploadArgs;
+    return onTab(ctx, args, async (conn, tabId) => {
+      const buf = await readFile(args.path);
+      await ctx.registry.send(conn, "browser_upload_file", {
+        ref: args.ref,
+        name: basename(args.path),
+        data: buf.toString("base64"),
+        tabId,
+      });
+      return ok(`Uploaded ${basename(args.path)}`);
+    });
+  },
+
+  browser_new_tab: async (ctx, raw) => {
+    const args = raw as NewTabArgs;
+    const conn = ctx.registry.resolveProfile(args.profile);
+    const res = await ctx.registry.send(conn, "browser_new_tab", {
+      url: args.url,
+    });
+    ctx.registry.markUsed(conn.port);
+    await ctx.registry.refreshTabs(conn).catch(() => {});
+    return ok(
+      `Opened tab ${res.slot} in "${conn.label}"${args.url ? ` at ${args.url}` : ""}`,
+    );
+  },
+
+  browser_close_tab: async (ctx, raw) => {
+    const args = raw as CloseTabArgs;
+    const conn = ctx.registry.resolveProfile(args.profile);
+    let tabId = ctx.registry.tabIdForSlot(conn, args.tab);
+    if (tabId == null) {
+      await ctx.registry.refreshTabs(conn);
+      tabId = ctx.registry.tabIdForSlot(conn, args.tab);
+    }
+    if (tabId == null) {
+      throw new Error(`No shared tab numbered ${args.tab} in "${conn.label}".`);
+    }
+    await ctx.registry.send(conn, "browser_close_tab", { tabId });
+    await ctx.registry.refreshTabs(conn).catch(() => {});
+    return ok(`Closed tab ${args.tab} in "${conn.label}"`);
   },
 
   browser_list_tabs: async (ctx) => {

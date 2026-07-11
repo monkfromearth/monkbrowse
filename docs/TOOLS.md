@@ -19,17 +19,20 @@ After an action that changes the page, the tool returns a fresh **accessibility 
 
 | Tool | Arguments | Does |
 |---|---|---|
-| `browser_navigate` | `url`, `profile?`, `tab?` | Navigate a tab to a URL, wait for load, return a snapshot. |
+| `browser_navigate` | `url`, `profile?`, `tab?` | Navigate to a URL, wait for load, return a snapshot. |
 | `browser_go_back` | `profile?`, `tab?` | Back in history + snapshot. |
 | `browser_go_forward` | `profile?`, `tab?` | Forward in history + snapshot. |
+| `browser_reload` | `profile?`, `tab?` | Reload the page + snapshot. |
 
 ## Reading
 
 | Tool | Arguments | Does |
 |---|---|---|
-| `browser_snapshot` | `profile?`, `tab?` | Capture the accessibility snapshot (URL + title + ARIA tree). Preferred over a screenshot for understanding structure and getting element `ref`s. |
-| `browser_screenshot` | `profile?`, `tab?` | PNG of the visible tab. |
-| `browser_get_console_logs` | `profile?`, `tab?` | Buffered console output for the tab. |
+| `browser_snapshot` | `profile?`, `tab?` | Accessibility snapshot (URL + title + tree). **Includes shadow-DOM and same-origin iframe content.** Preferred for structure + getting `ref`s. |
+| `browser_get_text` | `ref?`, `profile?`, `tab?` | Visible text of the page (or one element) — for reading/summarizing. |
+| `browser_screenshot` | `profile?`, `tab?` | PNG of the tab (brings it to front first, so background tabs work). |
+| `browser_get_console_logs` | `profile?`, `tab?` | Buffered console output (and any auto-handled dialogs). |
+| `browser_evaluate` | `expression`, `profile?`, `tab?` | Run a JS expression in the page, return its result. Power escape hatch: DOM queries, `document.cookie`, `localStorage`, etc. |
 
 ## Interacting
 
@@ -41,15 +44,25 @@ Element-targeting tools take an `element` (human description) and a `ref` (from 
 | `browser_hover` | `element`, `ref`, `profile?`, `tab?` | Hover an element. |
 | `browser_type` | `element`, `ref`, `text`, `submit?`, `profile?`, `tab?` | Type into an editable element; `submit: true` presses Enter after. |
 | `browser_select_option` | `element`, `ref`, `values[]`, `profile?`, `tab?` | Select option(s) in a `<select>`. |
-| `browser_press_key` | `key`, `profile?`, `tab?` | Press a key (e.g. `Enter`, `ArrowDown`, `a`). |
-| `browser_wait` | `time` | Wait N seconds (handled server-side; no browser needed). |
+| `browser_press_key` | `key`, `profile?`, `tab?` | Press a key or **combo** (`Enter`, `ArrowDown`, `Ctrl+A`, `Meta+c`). |
+| `browser_scroll` | `direction?`, `amount?`, `ref?`, `profile?`, `tab?` | Scroll the page (to load lazy content) or scroll a `ref` into view. |
+| `browser_drag` | `startElement`, `startRef`, `endElement`, `endRef`, `profile?`, `tab?` | Drag one element onto another. |
+| `browser_upload_file` | `ref`, `path`, `profile?`, `tab?` | Set a local file on a `<input type=file>`. The server reads `path`. |
+
+## Timing
+
+| Tool | Arguments | Does |
+|---|---|---|
+| `browser_wait` | `time?`, `text?`, `profile?`, `tab?` | Wait N seconds, **or** until `text` appears on the page (polls, up to ~15s). |
 
 ## Tabs & profiles
 
 | Tool | Arguments | Does |
 |---|---|---|
-| `browser_list_tabs` | — | List **every** tab across **every** connected profile, with their number, label, and which is active. |
-| `browser_switch_tab` | `tab`, `profile?` | Make a tab the active tab in its profile. |
+| `browser_list_tabs` | — | List the **shared** tabs across every connected profile, numbered. |
+| `browser_switch_tab` | `tab`, `profile?` | Make a shared tab the active tab in its profile. |
+| `browser_new_tab` | `url?`, `profile?` | Open a new tab (auto-shared) and return its number. |
+| `browser_close_tab` | `tab`, `profile?` | Close a shared tab. |
 
 ## Examples
 

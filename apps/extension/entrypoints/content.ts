@@ -3,16 +3,22 @@ import { defineContentScript } from "#imports";
 import {
   buildSnapshot,
   clickRef,
+  dragRefs,
+  evaluate,
+  getText,
   hoverRef,
-  pressKeyGlobal,
+  pressKey,
+  scrollPage,
   selectOptionRef,
   typeRef,
+  uploadToRef,
 } from "../lib/dom";
 
 /**
- * Runs in every page. Two jobs:
- *  1. Buffer console output (so browser_get_console_logs can return it).
- *  2. Execute DOM operations requested by the service worker (messages tagged
+ * Runs in every page. Jobs:
+ *  1. Buffer console output (browser_get_console_logs).
+ *  2. Keep native dialogs (alert/confirm/prompt) from blocking automation.
+ *  3. Execute DOM operations requested by the service worker (messages tagged
  *     `cs: true`), resolving elements by the refs from the last snapshot.
  */
 export default defineContentScript({
@@ -31,6 +37,23 @@ export default defineContentScript({
         if (logs.length > MAX_LOGS) logs.shift();
         orig(...args);
       };
+    }
+
+    // Non-blocking dialogs: a native alert/confirm/prompt would freeze the tab
+    // and stall automation. Auto-resolve them (and log it) so flows continue.
+    try {
+      window.alert = (m?: unknown) =>
+        logs.push({ level: "dialog", ts: Date.now(), text: `alert: ${String(m ?? "")}` });
+      window.confirm = (m?: unknown) => {
+        logs.push({ level: "dialog", ts: Date.now(), text: `confirm: ${String(m ?? "")}` });
+        return true;
+      };
+      window.prompt = (m?: unknown, d?: string) => {
+        logs.push({ level: "dialog", ts: Date.now(), text: `prompt: ${String(m ?? "")}` });
+        return d ?? "";
+      };
+    } catch {
+      // some pages freeze these; ignore
     }
 
     chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
@@ -67,7 +90,24 @@ export default defineContentScript({
           selectOptionRef(msg.ref as string, msg.values as string[]);
           return {};
         case "press_key":
-          pressKeyGlobal(msg.key as string);
+          pressKey(msg.key as string);
+          return {};
+        case "scroll":
+          scrollPage(
+            msg.direction as "up" | "down" | "left" | "right" | undefined,
+            msg.amount as number | undefined,
+            msg.ref as string | undefined,
+          );
+          return {};
+        case "get_text":
+          return { text: getText(msg.ref as string | undefined) };
+        case "evaluate":
+          return { result: await evaluate(msg.expression as string) };
+        case "drag":
+          dragRefs(msg.startRef as string, msg.endRef as string);
+          return {};
+        case "upload":
+          uploadToRef(msg.ref as string, msg.name as string, msg.data as string);
           return {};
         case "console":
           return logs.slice();

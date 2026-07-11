@@ -100,6 +100,52 @@ export const socketMessages = {
     request: z.object({ tabId: z.number() }),
     response: z.object({ activeTabId: z.number() }),
   },
+  browser_reload: {
+    request: z.object({ ...withTab }),
+    response: ActionResult,
+  },
+  browser_scroll: {
+    request: z.object({
+      direction: z.enum(["up", "down", "left", "right"]).optional(),
+      amount: z.number().optional(),
+      ref: z.string().optional(),
+      ...withTab,
+    }),
+    response: ActionResult,
+  },
+  browser_get_text: {
+    request: z.object({ ref: z.string().optional(), ...withTab }),
+    response: z.object({ tabId: z.number(), text: z.string() }),
+  },
+  browser_evaluate: {
+    request: z.object({ expression: z.string(), ...withTab }),
+    response: z.object({ tabId: z.number(), result: z.unknown() }),
+  },
+  browser_drag: {
+    request: z.object({
+      startRef: z.string(),
+      endRef: z.string(),
+      ...withTab,
+    }),
+    response: ActionResult,
+  },
+  browser_upload_file: {
+    request: z.object({
+      ref: z.string(),
+      name: z.string(),
+      data: z.string(), // base64
+      ...withTab,
+    }),
+    response: ActionResult,
+  },
+  browser_new_tab: {
+    request: z.object({ url: z.string().optional() }),
+    response: z.object({ tabId: z.number(), slot: z.number() }),
+  },
+  browser_close_tab: {
+    request: z.object({ tabId: z.number() }),
+    response: z.object({ tabId: z.number() }),
+  },
 } as const;
 
 export type SocketMessages = typeof socketMessages;
@@ -120,6 +166,8 @@ export const messageTimeouts: Partial<Record<MessageType, number>> = {
   browser_navigate: 60_000,
   browser_go_back: 60_000,
   browser_go_forward: 60_000,
+  browser_reload: 60_000,
+  browser_new_tab: 60_000,
   browser_wait: 65_000,
   browser_screenshot: 15_000,
 };
@@ -130,6 +178,7 @@ export const messageTimeouts: Partial<Record<MessageType, number>> = {
  */
 export const retryableMessages: ReadonlySet<MessageType> = new Set([
   "browser_snapshot",
+  "browser_get_text",
   "getUrl",
   "getTitle",
   "list_tabs",

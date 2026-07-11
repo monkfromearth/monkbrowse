@@ -34,10 +34,10 @@ describe("tool schemas", () => {
     expect(() => NavigateTool.arguments.parse({})).toThrow();
   });
 
-  test("all 14 tools have unique names", () => {
+  test("all tools have unique names", () => {
     const names = ALL_TOOLS.map((t) => t.name);
-    expect(names.length).toBe(14);
-    expect(new Set(names).size).toBe(14);
+    expect(names.length).toBe(22);
+    expect(new Set(names).size).toBe(22);
   });
 
   test("toolInputSchema yields JSON Schema with the tool's fields", () => {

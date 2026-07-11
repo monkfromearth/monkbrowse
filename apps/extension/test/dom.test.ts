@@ -7,7 +7,9 @@ import { afterEach, beforeAll, describe, expect, test } from "bun:test";
 import {
   buildSnapshot,
   clickRef,
-  pressKeyGlobal,
+  evaluate,
+  getText,
+  pressKey,
   selectOptionRef,
   typeRef,
 } from "../lib/dom";
@@ -63,18 +65,20 @@ describe("buildSnapshot", () => {
 
 describe("action helpers resolve by ref", () => {
   test("clickRef clicks the stamped element", () => {
-    document.body.innerHTML = `<button data-mcp-ref="e1">Go</button>`;
+    document.body.innerHTML = `<button>Go</button>`;
     let clicked = false;
     document.querySelector("button")!.addEventListener("click", () => (clicked = true));
+    buildSnapshot(); // assigns e1 to the button + resets the ref map
     clickRef("e1");
     expect(clicked).toBe(true);
   });
 
   test("typeRef sets value and fires input", () => {
-    document.body.innerHTML = `<input data-mcp-ref="e1" />`;
+    document.body.innerHTML = `<input />`;
     const input = document.querySelector("input")!;
     let inputEvents = 0;
     input.addEventListener("input", () => inputEvents++);
+    buildSnapshot();
     typeRef("e1", "hello");
     expect(input.value).toBe("hello");
     expect(inputEvents).toBeGreaterThan(0);
@@ -82,23 +86,52 @@ describe("action helpers resolve by ref", () => {
 
   test("selectOptionRef selects by value", () => {
     document.body.innerHTML = `
-      <select data-mcp-ref="e1">
+      <select>
         <option value="a">A</option>
         <option value="b">B</option>
       </select>`;
+    buildSnapshot();
     selectOptionRef("e1", ["b"]);
     const sel = document.querySelector("select")!;
     expect(sel.value).toBe("b");
   });
 
-  test("pressKeyGlobal dispatches a keydown", () => {
+  test("pressKey dispatches a keydown", () => {
     let key = "";
     document.body.addEventListener("keydown", (e) => (key = (e as KeyboardEvent).key));
-    pressKeyGlobal("Enter");
+    pressKey("Enter");
     expect(key).toBe("Enter");
+  });
+
+  test("pressKey parses modifiers", () => {
+    let ev: KeyboardEvent | null = null;
+    document.body.addEventListener("keydown", (e) => (ev = e as KeyboardEvent));
+    pressKey("Ctrl+Shift+A");
+    expect(ev!.key).toBe("A");
+    expect(ev!.ctrlKey).toBe(true);
+    expect(ev!.shiftKey).toBe(true);
   });
 
   test("an unknown ref throws an actionable error", () => {
     expect(() => clickRef("nope")).toThrow(/not found/i);
+  });
+});
+
+describe("reading helpers", () => {
+  test("getText returns the whole-page text", () => {
+    document.body.innerHTML = `<article><h1>Title</h1><p>Body text.</p></article>`;
+    const all = getText();
+    expect(all).toContain("Title");
+    expect(all).toContain("Body text.");
+  });
+
+  test("evaluate runs an expression and returns a JSON-safe value", async () => {
+    document.title = "Hello";
+    await expect(evaluate("document.title")).resolves.toBe("Hello");
+    await expect(evaluate("1 + 2")).resolves.toBe(3);
+    await expect(evaluate("({a: [1,2], b: 'x'})")).resolves.toEqual({
+      a: [1, 2],
+      b: "x",
+    });
   });
 });

@@ -1,4 +1,5 @@
-import { enumerateTabs } from "./tabs";
+import { isShared } from "./shares";
+import { enumerateSharedTabs } from "./tabs";
 
 /**
  * Service-worker side. Executes a single wire request (by type + payload) using
@@ -98,7 +99,7 @@ export async function execWire(
       return { tabId, data: dataUrl.replace(/^data:image\/png;base64,/, "") };
     }
     case "list_tabs": {
-      return { tabs: await enumerateTabs() };
+      return { tabs: await enumerateSharedTabs() };
     }
     case "browser_switch_tab": {
       const tabId = Number(payload.tabId);
@@ -113,6 +114,17 @@ export async function execWire(
 }
 
 async function resolveTab(explicit?: number): Promise<number> {
+  const tabId = await pickTab(explicit);
+  // Safety net: never act on a tab the user hasn't shared with the AI.
+  if (!(await isShared(tabId))) {
+    throw new Error(
+      `Tab ${tabId} isn't shared with the AI. Open the monkbrowse popup and toggle it on.`,
+    );
+  }
+  return tabId;
+}
+
+async function pickTab(explicit?: number): Promise<number> {
   if (explicit != null) {
     const tab = await chrome.tabs.get(explicit).catch(() => null);
     if (!tab || tab.id == null) {

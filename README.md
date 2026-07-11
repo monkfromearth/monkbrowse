@@ -44,7 +44,8 @@ The trade-off: it drives a browser you can see, one action at a time per tab (li
 ## How it works
 
 - The server exposes browser **tools** to the AI and binds **one WebSocket listener per profile port** (default range `9222`–`9241`).
-- Each Chrome profile runs the extension, configured (in its options) to connect to **one** port with a friendly **label**. A port identifies a profile.
+- Each Chrome profile runs the extension, configured (in the popup) to connect to **one** port with a friendly **label**. A port identifies a profile.
+- **You choose which tabs the AI can touch.** The popup lists every tab with a **Share** toggle; only shared tabs get a number and are visible/drivable. Everything else stays private.
 - A **connection registry** holds every profile at once — a second profile never evicts the first (the flaw in single-socket designs).
 - Inside the extension, an **offscreen document owns the socket** so it survives service-worker suspension; the service worker executes Chrome APIs; a content script builds the accessibility snapshot and runs DOM actions.
 - Most actions return a fresh **accessibility snapshot** of the tab, so the AI "sees" the result without a screenshot.
@@ -73,7 +74,7 @@ More detail, including the multi-profile walkthrough: **[docs/GETTING-STARTED.md
 
 ## Using it
 
-Address a profile by its port (or label), a tab by the **simple number** shown in the popup — or omit both to use the focused profile's active tab. Because the popup shows those numbers, a user can just say "on tab 2, …".
+First **share** the tabs you want the AI to use (toggle them in the popup). Then address a profile by its port (or label), a tab by the **simple number** shown next to it — or omit both to use the shared, focused tab. Because the popup shows those numbers, a user can just say "on tab 2, …".
 
 ```
 browser_list_tabs                                   → every tab across every profile, numbered 1, 2, 3…

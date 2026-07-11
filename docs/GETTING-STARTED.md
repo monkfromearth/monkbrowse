@@ -71,6 +71,12 @@ Stop the doctor with Ctrl-C before starting your MCP client (one server per port
 
 Then, with your MCP client running, ask your AI to run `browser_list_tabs`.
 
+## Share the tabs the AI may use
+
+By default the AI sees **nothing**. In the popup, each tab has a **Share** toggle — flip on the tabs you want the AI to control. Only shared tabs get a number (1, 2, 3…) and appear in `browser_list_tabs`; the rest stay private. Unshared tabs (banking, email, whatever) are invisible to the AI, and a tool call against one is refused.
+
+So the flow is: **share a tab → it gets a number → tell your AI "on tab 2, …".**
+
 ## 4. Add more profiles
 
 Chrome runs each profile as its own world, so the extension is loaded per profile:

@@ -38,7 +38,7 @@ stdout is the MCP transport, so all server logs go to **stderr** (`apps/server/s
 "A port per tab" is impossible — tabs multiplex over one connection. It resolves to:
 
 - **Profile** ⇒ a **port**. Each profile's extension is configured (in the popup) to connect to one port; the server binds a range (`basePort`..`basePort+portCount`, default 9222–9241).
-- **Tab** ⇒ a **simple number** (1, 2, 3…) the extension assigns each tab, shown in the popup.
+- **Tab** ⇒ a **simple number** (1, 2, 3…) the extension assigns each **shared** tab, shown in the popup. Only tabs the user shares (a toggle per tab) are numbered, visible to the AI, or drivable — the rest are invisible to the server.
 
 Every interaction tool takes optional `profile` (a port number or label) and `tab` (the number). Omit `profile` → the **focused profile** (the only connected one, else the most-recently-used). Omit `tab` → the profile's **active tab**. The server maps `(profile, tab)` → the real chrome tab id before sending on the wire. New tools `browser_list_tabs` (aggregates every profile, numbered) and `browser_switch_tab` round it out.
 

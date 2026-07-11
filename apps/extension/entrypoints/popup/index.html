@@ -58,13 +58,14 @@
       .tabs-head .t { font-size: 11px; font-weight: 600; color: var(--muted); }
       .count { font-size: 11px; color: var(--muted); }
       .list { max-height: 240px; overflow-y: auto; margin: 0 -6px; }
-      .row { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: center; padding: 6px 6px; border-radius: 6px; }
+      .row { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; padding: 6px 6px; border-radius: 6px; }
       .row.active { background: var(--active); }
       .badge {
-        width: 22px; height: 22px; border-radius: 6px; background: var(--panel); color: #40465f;
+        width: 22px; height: 22px; border-radius: 6px; background: var(--accent); color: #fff;
         display: grid; place-items: center; font-size: 12px; font-weight: 700;
       }
-      .row.active .badge { background: var(--accent); color: #fff; }
+      .badge.off { background: var(--panel); color: #b7b9c2; font-weight: 500; }
+      input.share { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; margin: 0; }
       .meta { min-width: 0; }
       .title { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .host { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -99,7 +100,7 @@
     <section class="tabs">
       <div class="tabs-head"><span class="t">Tabs</span><span id="tabCount" class="count"></span></div>
       <div id="tabList" class="list"></div>
-      <p class="foot">Tell your AI: “on <b>tab&nbsp;2</b>, …”.</p>
+      <p class="foot">Toggle a tab to <b>share</b> it with the AI. Only shared tabs get a number — then say “on <b>tab&nbsp;2</b>, …”.</p>
     </section>
 
     <script type="module" src="./main.ts"></script>

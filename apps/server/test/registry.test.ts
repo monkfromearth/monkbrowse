@@ -139,6 +139,48 @@ describe("ConnectionRegistry — resolveProfile", () => {
   });
 });
 
+describe("ConnectionRegistry — tab resolution", () => {
+  const tab = (tabId: number, slot: number, active = false) => ({
+    tabId,
+    slot,
+    url: "u",
+    title: "t",
+    active,
+    windowId: 1,
+  });
+  function connWith(tabs: ReturnType<typeof tab>[]) {
+    const reg = new ConnectionRegistry(PORTS, "test");
+    reg.handleHello(9222, fakePeer(), hello("a", "Work", tabs));
+    return { reg, conn: reg.get(9222)! };
+  }
+
+  test("tabIdForSlot maps a slot number to a chrome tab id", () => {
+    const { reg, conn } = connWith([tab(101, 1, true), tab(102, 2)]);
+    expect(reg.tabIdForSlot(conn, 2)).toBe(102);
+    expect(reg.tabIdForSlot(conn, 9)).toBeUndefined();
+  });
+
+  test("defaultSharedTab prefers the active shared tab", () => {
+    const { reg, conn } = connWith([tab(101, 1), tab(102, 2, true)]);
+    expect(reg.defaultSharedTab(conn)).toBe(102);
+  });
+
+  test("defaultSharedTab uses the only shared tab when none is active", () => {
+    const { reg, conn } = connWith([tab(101, 1)]);
+    expect(reg.defaultSharedTab(conn)).toBe(101);
+  });
+
+  test("defaultSharedTab throws when nothing is shared", () => {
+    const { reg, conn } = connWith([]);
+    expect(() => reg.defaultSharedTab(conn)).toThrow(/No tabs are shared/);
+  });
+
+  test("defaultSharedTab throws when ambiguous (many shared, none active)", () => {
+    const { reg, conn } = connWith([tab(101, 1), tab(102, 2)]);
+    expect(() => reg.defaultSharedTab(conn)).toThrow(/say which/);
+  });
+});
+
 describe("ConnectionRegistry — send", () => {
   const okSnapshot = {
     tabId: 1,

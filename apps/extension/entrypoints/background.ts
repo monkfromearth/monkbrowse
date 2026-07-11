@@ -5,7 +5,8 @@ import type { Hello } from "@monkbrowse/protocol";
 import { KEEPALIVE_ALARM, KIND, OFFSCREEN_URL, TO } from "../lib/constants";
 import { execWire } from "../lib/executor";
 import { getIdentity } from "../lib/identity";
-import { enumerateTabs } from "../lib/tabs";
+import { setShared } from "../lib/shares";
+import { enumeratePopupTabs, enumerateSharedTabs } from "../lib/tabs";
 
 export default defineBackground(() => {
   let connected = false;
@@ -79,7 +80,12 @@ export default defineBackground(() => {
           label: currentLabel,
         };
       case KIND.listTabs:
-        return { tabs: await enumerateTabs() };
+        return { tabs: await enumeratePopupTabs() };
+      case KIND.toggleShare: {
+        await setShared(Number(msg.tabId), Boolean(msg.shared));
+        await pushSharedTabs();
+        return { tabs: await enumeratePopupTabs() };
+      }
       case KIND.settingsChanged:
         // Tell the offscreen doc to reconnect with the new port/label.
         chrome.runtime.sendMessage({ to: TO.offscreen, kind: KIND.reconnect });
@@ -94,7 +100,7 @@ export default defineBackground(() => {
     assignedPort: number;
   }> {
     const { profileId, port, label } = await getIdentity();
-    const tabs = await enumerateTabs();
+    const tabs = await enumerateSharedTabs();
     const hello: Hello = {
       profileId,
       label,
@@ -104,23 +110,27 @@ export default defineBackground(() => {
     return { hello, assignedPort: port };
   }
 
-  // --- push tab changes to the offscreen doc (debounced) ---
+  // --- push the SHARED tab list to the offscreen doc (server-facing) ---
+  async function pushSharedTabs(): Promise<void> {
+    if (!connected) return;
+    chrome.runtime.sendMessage({
+      to: TO.offscreen,
+      kind: KIND.tabsPush,
+      tabs: await enumerateSharedTabs(),
+    });
+  }
+
   function scheduleTabsPush(): void {
     if (pushTimer) clearTimeout(pushTimer);
-    pushTimer = setTimeout(async () => {
+    pushTimer = setTimeout(() => {
       pushTimer = null;
-      if (!connected) return;
-      const tabs = await enumerateTabs();
-      chrome.runtime.sendMessage({
-        to: TO.offscreen,
-        kind: KIND.tabsPush,
-        tabs,
-      });
+      void pushSharedTabs();
     }, 250);
   }
 
   chrome.tabs.onCreated.addListener(scheduleTabsPush);
   chrome.tabs.onRemoved.addListener(scheduleTabsPush);
+  chrome.tabs.onActivated.addListener(scheduleTabsPush);
   chrome.tabs.onUpdated.addListener((_id, info) => {
     if (info.status === "complete" || info.title || info.url) {
       scheduleTabsPush();

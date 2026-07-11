@@ -46,21 +46,24 @@ async function onTab<T>(
   fn: (conn: ProfileConnection, tabId?: number) => Promise<T>,
 ): Promise<T> {
   const conn = ctx.registry.resolveProfile(args.profile);
-  let tabId: number | undefined;
+  let tabId: number;
   if (args.tab != null) {
-    tabId = ctx.registry.tabIdForSlot(conn, args.tab);
-    if (tabId == null) {
+    let resolved = ctx.registry.tabIdForSlot(conn, args.tab);
+    if (resolved == null) {
       // The slot may be newer than our cache — refresh once and retry.
       await ctx.registry.refreshTabs(conn);
-      tabId = ctx.registry.tabIdForSlot(conn, args.tab);
+      resolved = ctx.registry.tabIdForSlot(conn, args.tab);
     }
-    if (tabId == null) {
+    if (resolved == null) {
       throw new Error(
-        `No tab numbered ${args.tab} in profile "${conn.label}". Run browser_list_tabs to see current tabs.`,
+        `No shared tab numbered ${args.tab} in profile "${conn.label}". Share it in the monkbrowse popup, or run browser_list_tabs.`,
       );
     }
+    tabId = resolved;
+  } else {
+    tabId = ctx.registry.defaultSharedTab(conn);
   }
-  const key = `${conn.port}:${tabId ?? "active"}`;
+  const key = `${conn.port}:${tabId}`;
   return ctx.queue.enqueue(key, () => fn(conn, tabId));
 }
 
@@ -238,12 +241,15 @@ export const toolHandlers: Record<string, ToolHandler> = {
           return `  ${t.slot}. ${t.title || "(untitled)"}${host ? ` — ${host}` : ""}${active}`;
         });
         const header = `${conn.label} (port ${conn.port}):`;
-        return [header, ...(lines.length ? lines : ["  (no tabs)"])].join("\n");
+        const body = lines.length
+          ? lines
+          : ["  (no shared tabs — share one in the monkbrowse popup)"];
+        return [header, ...body].join("\n");
       }),
     );
     const example = conns[0]!.port;
     return ok(
-      `Address a tab as { profile, tab } — e.g. { profile: ${example}, tab: 1 }.\n\n` +
+      `Only tabs shared in the monkbrowse popup are listed. Address a tab as { profile, tab } — e.g. { profile: ${example}, tab: 1 }.\n\n` +
         sections.join("\n\n"),
     );
   },

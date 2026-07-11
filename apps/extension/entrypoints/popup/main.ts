@@ -1,7 +1,6 @@
-import type { TabInfo } from "@monkbrowse/protocol";
-
 import { KIND, TO } from "../../lib/constants";
 import { getIdentity, saveSettings } from "../../lib/identity";
+import type { PopupTab } from "../../lib/tabs";
 
 const portInput = document.getElementById("port") as HTMLInputElement;
 const labelInput = document.getElementById("label") as HTMLInputElement;
@@ -11,8 +10,8 @@ const saved = document.getElementById("saved")!;
 const tabList = document.getElementById("tabList")!;
 const tabCount = document.getElementById("tabCount")!;
 
-async function bg(kind: string): Promise<unknown> {
-  const res = (await chrome.runtime.sendMessage({ to: TO.bg, kind })) as
+async function bg(kind: string, extra: Record<string, unknown> = {}): Promise<unknown> {
+  const res = (await chrome.runtime.sendMessage({ to: TO.bg, kind, ...extra })) as
     | { ok: true; result: unknown }
     | { ok: false; error: string }
     | undefined;
@@ -37,9 +36,10 @@ function hostOf(url: string): string {
   }
 }
 
-function renderTabs(tabs: TabInfo[]): void {
+function renderTabs(tabs: PopupTab[]): void {
   tabList.replaceChildren();
-  tabCount.textContent = tabs.length ? `${tabs.length}` : "";
+  const sharedCount = tabs.filter((t) => t.shared).length;
+  tabCount.textContent = tabs.length ? `${sharedCount} shared` : "";
   if (!tabs.length) {
     const empty = document.createElement("div");
     empty.className = "empty";
@@ -47,39 +47,52 @@ function renderTabs(tabs: TabInfo[]): void {
     tabList.append(empty);
     return;
   }
-  tabs
-    .slice()
-    .sort((a, b) => a.slot - b.slot)
-    .forEach((t) => {
-      const row = document.createElement("div");
-      row.className = `row${t.active ? " active" : ""}`;
 
-      const badge = document.createElement("div");
-      badge.className = "badge";
-      badge.textContent = String(t.slot);
+  for (const t of tabs) {
+    const row = document.createElement("div");
+    row.className = `row${t.active ? " active" : ""}`;
 
-      const meta = document.createElement("div");
-      meta.className = "meta";
-      const title = document.createElement("div");
-      title.className = "title";
-      title.textContent = t.title || "(untitled)"; // textContent: page titles are untrusted
-      const host = document.createElement("div");
-      host.className = "host";
-      host.textContent = hostOf(t.url);
-      if (t.active) {
-        const live = document.createElement("span");
-        live.className = "live";
-        live.textContent = " · active";
-        host.append(live);
-      }
-      meta.append(title, host);
-      row.append(badge, meta);
-      tabList.append(row);
+    const badge = document.createElement("div");
+    badge.className = `badge${t.shared ? "" : " off"}`;
+    badge.textContent = t.shared && t.slot != null ? String(t.slot) : "–";
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    const title = document.createElement("div");
+    title.className = "title";
+    title.textContent = t.title || "(untitled)"; // textContent: page titles are untrusted
+    const host = document.createElement("div");
+    host.className = "host";
+    host.textContent = hostOf(t.url);
+    if (t.active) {
+      const live = document.createElement("span");
+      live.className = "live";
+      live.textContent = " · active";
+      host.append(live);
+    }
+    meta.append(title, host);
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.className = "share";
+    cb.checked = t.shared;
+    cb.title = t.shared ? "Shared with the AI" : "Share with the AI";
+    cb.addEventListener("change", async () => {
+      cb.disabled = true;
+      const res = (await bg(KIND.toggleShare, {
+        tabId: t.tabId,
+        shared: cb.checked,
+      })) as { tabs: PopupTab[] } | undefined;
+      if (res) renderTabs(res.tabs);
     });
+
+    row.append(badge, meta, cb);
+    tabList.append(row);
+  }
 }
 
 async function loadTabs(): Promise<void> {
-  const res = (await bg(KIND.listTabs)) as { tabs: TabInfo[] } | undefined;
+  const res = (await bg(KIND.listTabs)) as { tabs: PopupTab[] } | undefined;
   renderTabs(res?.tabs ?? []);
 }
 

@@ -11,6 +11,8 @@ Most tools accept two optional arguments:
 
 These are the same numbers the user sees in the extension popup, so a user can say "on tab 2, …" and the AI passes `{ tab: 2 }`. Run `browser_list_tabs` any time to see the current numbering.
 
+**Only shared tabs are reachable.** The user toggles which tabs to share in the popup; only those get a number and appear in `browser_list_tabs`. A tool call against an unshared tab returns an error telling the user to share it. If a tool reports "no tabs are shared," ask the user to toggle a tab on in the popup.
+
 After an action that changes the page, the tool returns a fresh **accessibility snapshot** so the AI can see the result and pick the next `ref`.
 
 ## Navigation

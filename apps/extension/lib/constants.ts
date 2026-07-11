@@ -19,7 +19,8 @@ export const KIND = {
   tabsPush: "tabs-push", // bg -> offscreen: forward tabs_changed
   reconnect: "reconnect", // bg -> offscreen: settings changed, reconnect
   getState: "get-state", // UI -> bg: current connection state
-  listTabs: "list-tabs", // UI -> bg: this profile's tabs with slot numbers
+  listTabs: "list-tabs", // UI -> bg: this profile's tabs (all, with shared flag)
+  toggleShare: "toggle-share", // UI -> bg: share/unshare a tab with the AI
   settingsChanged: "settings-changed", // UI -> bg: options saved
 } as const;
 

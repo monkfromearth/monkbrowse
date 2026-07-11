@@ -162,6 +162,26 @@ export class ConnectionRegistry {
     return undefined;
   }
 
+  /**
+   * Pick the default tab when the AI omits `tab`: the active shared tab, else
+   * the only shared tab. Throws (actionably) if zero or ambiguous. `conn.tabs`
+   * only ever holds SHARED tabs, so this can never pick an unshared tab.
+   */
+  defaultSharedTab(conn: ProfileConnection): number {
+    const shared = [...conn.tabs.values()];
+    if (shared.length === 0) {
+      throw new Error(
+        `No tabs are shared with the AI in profile "${conn.label}". Open the monkbrowse popup and toggle a tab on.`,
+      );
+    }
+    const active = shared.find((t) => t.active);
+    if (active) return active.tabId;
+    if (shared.length === 1) return shared[0]!.tabId;
+    throw new Error(
+      `Multiple tabs are shared in "${conn.label}" — say which with \`tab\` (see browser_list_tabs).`,
+    );
+  }
+
   /** Re-fetch a profile's tabs from its extension and refresh the cache. */
   async refreshTabs(conn: ProfileConnection): Promise<TabInfo[]> {
     const { tabs } = await this.send(conn, "list_tabs", {});

@@ -1,0 +1,14 @@
+{
+  "name": "@monkbrowse/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./app.config": "./src/app.config.ts",
+    "./mcp.config": "./src/mcp.config.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@monkbrowse/extension",
+  "version": "0.2.0",
+  "description": "Monkbrowse Chrome extension — connects one Chrome profile to the MCP server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "package": "wxt zip",
+    "prepare": "wxt prepare",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@monkbrowse/config": "workspace:*",
+    "@monkbrowse/messaging": "workspace:*",
+    "@monkbrowse/protocol": "workspace:*",
+    "@monkbrowse/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.287",
+    "typescript": "^5.6.2",
+    "wxt": "^0.20.6"
+  }
+}

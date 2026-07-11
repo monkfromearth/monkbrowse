@@ -1,0 +1,34 @@
+{
+  "name": "@monkbrowse/server",
+  "version": "0.2.0",
+  "description": "MCP server for browser automation across multiple Chrome tabs and profiles",
+  "type": "module",
+  "bin": {
+    "monkbrowse": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "tsup && shx chmod +x dist/*.js",
+    "typecheck": "tsc --noEmit",
+    "inspector": "bunx @modelcontextprotocol/inspector node dist/index.js"
+  },
+  "dependencies": {
+    "@monkbrowse/config": "workspace:*",
+    "@monkbrowse/messaging": "workspace:*",
+    "@monkbrowse/protocol": "workspace:*",
+    "@monkbrowse/utils": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.8.0",
+    "commander": "^13.1.0",
+    "ws": "^8.18.1",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/ws": "^8.18.0",
+    "shx": "^0.3.4",
+    "tsup": "^8.4.0"
+  }
+}

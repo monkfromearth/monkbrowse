@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Monkbrowse settings</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body { font: 14px/1.6 system-ui, sans-serif; max-width: 440px; margin: 40px auto; padding: 0 20px; }
+      h1 { font-size: 18px; }
+      label { display: block; margin: 16px 0 4px; font-weight: 600; }
+      input { font: inherit; padding: 8px; width: 100%; box-sizing: border-box; }
+      .hint { opacity: 0.65; font-size: 12px; margin-top: 4px; }
+      button { font: inherit; padding: 8px 16px; margin-top: 20px; cursor: pointer; }
+      #saved { color: #16a34a; margin-left: 12px; opacity: 0; transition: opacity 0.2s; }
+      #saved.show { opacity: 1; }
+    </style>
+  </head>
+  <body>
+    <h1>Monkbrowse — this profile</h1>
+    <p class="hint">
+      Each Chrome profile connects to the MCP server on its own port. Give this
+      profile a distinct port; the server listens on a range starting at its base
+      port.
+    </p>
+    <label for="port">Port</label>
+    <input id="port" type="number" min="1" max="65535" />
+    <div class="hint" id="range"></div>
+    <label for="label">Label</label>
+    <input id="label" type="text" placeholder="e.g. Work, Personal, QA" />
+    <div>
+      <button id="save">Save &amp; reconnect</button>
+      <span id="saved">Saved</span>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

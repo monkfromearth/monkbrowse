@@ -1,0 +1,28 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build", "prepare"],
+      "outputs": ["dist/**", ".output/**", ".wxt/**"]
+    },
+    "prepare": {
+      "cache": false
+    },
+    "typecheck": {
+      "dependsOn": ["^build", "prepare"],
+      "outputs": []
+    },
+    "lint": {
+      "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "package": {
+      "dependsOn": ["build"],
+      "outputs": [".output/*.zip"]
+    }
+  }
+}

@@ -11,6 +11,13 @@ let shared: Set<number> | null = null;
 let slots: Record<number, number> | null = null;
 let loading: Promise<void> | null = null;
 
+/** Test-only: clear the in-memory cache so the next call re-reads storage. */
+export function __resetCache(): void {
+  shared = null;
+  slots = null;
+  loading = null;
+}
+
 async function ensure(): Promise<void> {
   if (shared && slots) return;
   if (!loading) {

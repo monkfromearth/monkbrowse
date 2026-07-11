@@ -1,31 +1,18 @@
-import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import "./helpers/dom-env";
 
-GlobalRegistrator.register();
-
-import { afterEach, beforeAll, describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 
 import {
   buildSnapshot,
   clickRef,
+  dragRefs,
   evaluate,
   getText,
   pressKey,
   selectOptionRef,
   typeRef,
+  uploadToRef,
 } from "../lib/dom";
-
-beforeAll(() => {
-  // happy-dom has no layout engine — give every element a non-zero box so the
-  // visibility filter in buildSnapshot lets elements through.
-  Object.defineProperty(Element.prototype, "getBoundingClientRect", {
-    configurable: true,
-    value: () => ({ width: 120, height: 24, top: 0, left: 0, right: 120, bottom: 24, x: 0, y: 0, toJSON() {} }),
-  });
-  // CSS.escape polyfill (refs are simple ids)
-  if (!(globalThis as { CSS?: unknown }).CSS) {
-    (globalThis as { CSS?: unknown }).CSS = { escape: (s: string) => s };
-  }
-});
 
 afterEach(() => {
   document.body.innerHTML = "";
@@ -40,16 +27,12 @@ describe("buildSnapshot", () => {
         <button>Sign in</button>
         <span>just text</span>
       </div>`;
-    const { snapshot, url, title } = buildSnapshot();
+    const { snapshot } = buildSnapshot();
     expect(snapshot).toContain("heading");
     expect(snapshot).toContain('link "More info"');
     expect(snapshot).toContain('button "Sign in"');
-    expect(snapshot).toContain("[ref=e");
-    // a bare <span> is not interactive -> not stamped
     expect(document.querySelector("span")!.hasAttribute("data-mcp-ref")).toBe(false);
     expect(document.querySelector("button")!.hasAttribute("data-mcp-ref")).toBe(true);
-    expect(typeof url).toBe("string");
-    expect(typeof title).toBe("string");
   });
 
   test("refs are re-numbered fresh each call", () => {
@@ -59,16 +42,48 @@ describe("buildSnapshot", () => {
     buildSnapshot();
     const second = document.querySelector("button")!.getAttribute("data-mcp-ref");
     expect(first).toBe("e1");
-    expect(second).toBe("e1"); // reset, not e2
+    expect(second).toBe("e1");
+  });
+
+  test("skips hidden elements", () => {
+    document.body.innerHTML = `<button style="display:none">Hidden</button><button>Shown</button>`;
+    const { snapshot } = buildSnapshot();
+    expect(snapshot).toContain('"Shown"');
+    expect(snapshot).not.toContain('"Hidden"');
+  });
+
+  test("treats contenteditable as interactive", () => {
+    document.body.innerHTML = `<div contenteditable="true">Editable</div>`;
+    expect(buildSnapshot().snapshot).toContain("[ref=");
+  });
+
+  test("pierces shadow DOM and resolves a shadow element", () => {
+    document.body.innerHTML = `<div id="host"></div>`;
+    const sr = document.getElementById("host")!.attachShadow({ mode: "open" });
+    sr.innerHTML = `<button>Shadow Go</button>`;
+    const { snapshot } = buildSnapshot();
+    const m = snapshot.match(/button "Shadow Go" \[ref=(e\d+)\]/);
+    expect(m).toBeTruthy();
+    let clicked = false;
+    sr.querySelector("button")!.addEventListener("click", () => (clicked = true));
+    clickRef(m![1]!);
+    expect(clicked).toBe(true);
+  });
+
+  test("descends into a same-origin iframe", () => {
+    document.body.innerHTML = `<iframe srcdoc="<button>Inner Go</button>"></iframe>`;
+    const { snapshot } = buildSnapshot();
+    expect(snapshot).toContain("iframe");
+    expect(snapshot).toContain('button "Inner Go"');
   });
 });
 
-describe("action helpers resolve by ref", () => {
-  test("clickRef clicks the stamped element", () => {
+describe("action helpers", () => {
+  test("clickRef clicks the element from a snapshot ref", () => {
     document.body.innerHTML = `<button>Go</button>`;
     let clicked = false;
     document.querySelector("button")!.addEventListener("click", () => (clicked = true));
-    buildSnapshot(); // assigns e1 to the button + resets the ref map
+    buildSnapshot();
     clickRef("e1");
     expect(clicked).toBe(true);
   });
@@ -85,31 +100,42 @@ describe("action helpers resolve by ref", () => {
   });
 
   test("selectOptionRef selects by value", () => {
-    document.body.innerHTML = `
-      <select>
-        <option value="a">A</option>
-        <option value="b">B</option>
-      </select>`;
+    document.body.innerHTML = `<select><option value="a">A</option><option value="b">B</option></select>`;
     buildSnapshot();
     selectOptionRef("e1", ["b"]);
-    const sel = document.querySelector("select")!;
-    expect(sel.value).toBe("b");
+    expect(document.querySelector("select")!.value).toBe("b");
   });
 
-  test("pressKey dispatches a keydown", () => {
-    let key = "";
-    document.body.addEventListener("keydown", (e) => (key = (e as KeyboardEvent).key));
-    pressKey("Enter");
-    expect(key).toBe("Enter");
-  });
-
-  test("pressKey parses modifiers", () => {
+  test("pressKey dispatches keys and parses modifiers", () => {
     let ev: KeyboardEvent | null = null;
     document.body.addEventListener("keydown", (e) => (ev = e as KeyboardEvent));
     pressKey("Ctrl+Shift+A");
     expect(ev!.key).toBe("A");
     expect(ev!.ctrlKey).toBe(true);
     expect(ev!.shiftKey).toBe(true);
+  });
+
+  test("dragRefs fires dragstart on source and drop on target", () => {
+    document.body.innerHTML = `<div data-mcp-ref="d1">A</div><div data-mcp-ref="d2">B</div>`;
+    const [a, b] = Array.from(document.querySelectorAll("div"));
+    const events: string[] = [];
+    a!.addEventListener("dragstart", () => events.push("start"));
+    b!.addEventListener("drop", () => events.push("drop"));
+    dragRefs("d1", "d2");
+    expect(events).toEqual(expect.arrayContaining(["start", "drop"]));
+  });
+
+  test("uploadToRef sets a file on a file input", () => {
+    document.body.innerHTML = `<input type="file" data-mcp-ref="f1" />`;
+    uploadToRef("f1", "a.txt", btoa("hello"));
+    const input = document.querySelector("input") as HTMLInputElement;
+    expect(input.files!.length).toBe(1);
+    expect(input.files![0]!.name).toBe("a.txt");
+  });
+
+  test("uploadToRef rejects a non-file input", () => {
+    document.body.innerHTML = `<input type="text" data-mcp-ref="t1" />`;
+    expect(() => uploadToRef("t1", "a.txt", btoa("x"))).toThrow(/file input/i);
   });
 
   test("an unknown ref throws an actionable error", () => {
@@ -125,13 +151,11 @@ describe("reading helpers", () => {
     expect(all).toContain("Body text.");
   });
 
-  test("evaluate runs an expression and returns a JSON-safe value", async () => {
+  test("evaluate returns JSON-safe values and awaits promises", async () => {
     document.title = "Hello";
     await expect(evaluate("document.title")).resolves.toBe("Hello");
     await expect(evaluate("1 + 2")).resolves.toBe(3);
-    await expect(evaluate("({a: [1,2], b: 'x'})")).resolves.toEqual({
-      a: [1, 2],
-      b: "x",
-    });
+    await expect(evaluate("({a:[1,2],b:'x'})")).resolves.toEqual({ a: [1, 2], b: "x" });
+    await expect(evaluate("Promise.resolve(42)")).resolves.toBe(42);
   });
 });

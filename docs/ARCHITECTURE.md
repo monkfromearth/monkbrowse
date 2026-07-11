@@ -132,6 +132,13 @@ Navigation, screenshots, tab list/switch run directly in the SW; DOM ops go to t
 
 ---
 
-## 10. Verified end-to-end
+## 10. Testing without Chrome
 
-Without Chrome, a harness drives the real server over MCP stdio while simulating two profile extensions over WebSocket. It confirms: the MCP handshake and 14 tools; `browser_list_tabs` aggregating two profiles with composite ids; **two profiles connected on 9222 and 9223 at once with no eviction**; per-profile addressing by port; and concurrent calls to both profiles. To test the *real* extension you still load it in Chrome (see the verification section of the plan).
+The suite simulates the browser so real Chrome is the *final* check, not the only one:
+
+- **DOM engine** (`apps/extension/test/dom.test.ts`) — runs `lib/dom.ts` against a headless DOM (happy-dom): shadow-DOM piercing + click, same-origin iframe descent, drag, file upload, hidden-element skipping, `evaluate`, key combos.
+- **Fake `chrome`** (`test/helpers/fake-chrome.ts`) — in-memory tabs/storage/scripting, with tab messages routed to the real content-op dispatch. `executor.test.ts` drives `execWire` through it: navigate, new-tab auto-share, close, background-tab screenshot activation, the shared-tab guard, and real snapshot→click.
+- **Full loop** (`full-loop.test.ts`) — the real MCP tool handler → real registry → real messaging `Peer` (linked in memory, no WebSocket) → real `execWire` → headless DOM. A `browser_click` tool call genuinely clicks a real element; `browser_type` fills a real input.
+- **Server** (`apps/server/test`) — registry (adopt / reconnect / no-eviction / conflict), tab resolution, and an integration test with two simulated profiles over real WebSockets.
+
+What still needs real Chrome: cross-origin iframes, MV3 service-worker suspension/offscreen survival, content-script injection into pre-open tabs, and layout-dependent visibility on complex pages.

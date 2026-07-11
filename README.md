@@ -114,7 +114,7 @@ Adding a browser tool spans four files (schema → wire message → server handl
 
 ## Status
 
-Server and extension build and typecheck; the server path (registry, handshake, addressing, concurrency) is verified end-to-end against simulated profiles. Real-Chrome hardening (service-worker survival, injection edge cases, snapshot tuning on complex pages) is in progress.
+Server and extension build, typecheck, and pass ~96 tests — including a headless-DOM harness that exercises the real DOM engine (shadow DOM, iframes, actions), a fake-`chrome` layer that drives the real executor, and a full loop (MCP tool → server → messaging → executor → real DOM) with no browser. Real-Chrome hardening (service-worker survival, cross-origin iframes, snapshot tuning on complex pages) is the remaining final-verification step.
 
 ## Credits
 

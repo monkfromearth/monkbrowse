@@ -91,13 +91,17 @@ function nameOf(el: Element): string {
 }
 
 function isVisible(el: Element): boolean {
-  const style = viewOf(el).getComputedStyle(el);
-  if (
-    style.display === "none" ||
-    style.visibility === "hidden" ||
-    style.opacity === "0"
-  ) {
-    return false;
+  try {
+    const style = viewOf(el).getComputedStyle(el);
+    if (
+      style.display === "none" ||
+      style.visibility === "hidden" ||
+      style.opacity === "0"
+    ) {
+      return false;
+    }
+  } catch {
+    // cross-document getComputedStyle can throw; fall through to the box check
   }
   const rect = el.getBoundingClientRect();
   return rect.width > 0 && rect.height > 0;

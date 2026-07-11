@@ -1,0 +1,73 @@
+# Tool reference
+
+The MCP tools monkbrowse exposes. Source of truth: `packages/protocol/src/tools.ts`.
+
+## Targeting: `profile` and `tabId`
+
+Most tools accept two optional arguments:
+
+- **`profile`** — which Chrome profile: a **port** number (`9222`), a numeric string, or the profile's **profileId**. Omit it to use the **focused profile** (the only connected one, or the most recently used).
+- **`tabId`** — which tab within that profile. Omit it to use that profile's **active tab**; the tool reports back the tab id it acted on.
+
+Get ids from `browser_list_tabs`, which prints composite ids like `9223:5417` (`<port>:<tabId>`).
+
+After an action that changes the page, the tool returns a fresh **accessibility snapshot** so the AI can see the result and pick the next `ref`.
+
+## Navigation
+
+| Tool | Arguments | Does |
+|---|---|---|
+| `browser_navigate` | `url`, `profile?`, `tabId?` | Navigate a tab to a URL, wait for load, return a snapshot. |
+| `browser_go_back` | `profile?`, `tabId?` | Back in history + snapshot. |
+| `browser_go_forward` | `profile?`, `tabId?` | Forward in history + snapshot. |
+
+## Reading
+
+| Tool | Arguments | Does |
+|---|---|---|
+| `browser_snapshot` | `profile?`, `tabId?` | Capture the accessibility snapshot (URL + title + ARIA tree). Preferred over a screenshot for understanding structure and getting element `ref`s. |
+| `browser_screenshot` | `profile?`, `tabId?` | PNG of the visible tab. |
+| `browser_get_console_logs` | `profile?`, `tabId?` | Buffered console output for the tab. |
+
+## Interacting
+
+Element-targeting tools take an `element` (human description) and a `ref` (from the latest snapshot).
+
+| Tool | Arguments | Does |
+|---|---|---|
+| `browser_click` | `element`, `ref`, `profile?`, `tabId?` | Click an element. |
+| `browser_hover` | `element`, `ref`, `profile?`, `tabId?` | Hover an element. |
+| `browser_type` | `element`, `ref`, `text`, `submit?`, `profile?`, `tabId?` | Type into an editable element; `submit: true` presses Enter after. |
+| `browser_select_option` | `element`, `ref`, `values[]`, `profile?`, `tabId?` | Select option(s) in a `<select>`. |
+| `browser_press_key` | `key`, `profile?`, `tabId?` | Press a key (e.g. `Enter`, `ArrowDown`, `a`). |
+| `browser_wait` | `time` | Wait N seconds (handled server-side; no browser needed). |
+
+## Tabs & profiles
+
+| Tool | Arguments | Does |
+|---|---|---|
+| `browser_list_tabs` | — | List **every** tab across **every** connected profile, with composite ids, labels, and which is active. |
+| `browser_switch_tab` | `tabId`, `profile?` | Make a tab the active tab in its profile. |
+
+## Examples
+
+```jsonc
+// See everything, everywhere
+{ "name": "browser_list_tabs", "arguments": {} }
+
+// Drive a specific profile by port
+{ "name": "browser_navigate", "arguments": { "profile": 9223, "url": "https://news.ycombinator.com" } }
+
+// Read a specific tab
+{ "name": "browser_snapshot", "arguments": { "profile": 9222, "tabId": 5417 } }
+
+// Act on the focused profile's active tab (no targeting needed)
+{ "name": "browser_type", "arguments": { "element": "Search box", "ref": "e8", "text": "monkbrowse", "submit": true } }
+```
+
+## Notes
+
+- **Concurrency:** calls to different profiles or different tabs run in parallel; two mutating calls to the *same* tab are serialized so they can't interleave.
+- **Refs are per-snapshot:** a `ref` (`e12`) is stamped during a snapshot. If the page changed, capture a new snapshot — a stale ref returns an error rather than clicking the wrong thing.
+- **Idempotent reads retry; actions don't:** a timed-out snapshot/read is retried automatically; a click or type is never silently re-sent.
+- Adding a tool? See [.claude/rules/mcp-tools.md](../.claude/rules/mcp-tools.md) and the `add-mcp-tool` skill.

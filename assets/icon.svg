@@ -1,0 +1,22 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="monkbrowse">
+  <title>monkbrowse</title>
+  <defs>
+    <linearGradient id="tile" x1="8" y1="8" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#E9A294"/>
+      <stop offset="0.42" stop-color="#C2A4CD"/>
+      <stop offset="0.72" stop-color="#A2ABDE"/>
+      <stop offset="1" stop-color="#88B2EC"/>
+    </linearGradient>
+  </defs>
+
+  <!-- gradient tile -->
+  <rect x="0" y="0" width="128" height="128" rx="30" fill="url(#tile)"/>
+
+  <!-- knockout browser window (white) -->
+  <rect x="30" y="34" width="68" height="60" rx="13"
+        stroke="#ffffff" stroke-width="8" fill="none"/>
+  <path d="M40,56 H88" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="43" cy="46" r="3.4" fill="#ffffff"/>
+  <circle cx="55" cy="46" r="3.4" fill="#ffffff"/>
+  <circle cx="67" cy="46" r="3.4" fill="#ffffff"/>
+</svg>

@@ -20,6 +20,10 @@ export default defineConfig({
     host_permissions: ["<all_urls>"],
     action: {
       default_title: "Monkbrowse",
+      default_icon: {
+        16: "icon/16.png",
+        32: "icon/32.png",
+      },
     },
     // MV3 blocks ws:// by default — allow localhost WebSocket + HTTP to the server.
     content_security_policy: {

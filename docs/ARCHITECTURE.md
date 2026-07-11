@@ -33,20 +33,22 @@ stdout is the MCP transport, so all server logs go to **stderr** (`apps/server/s
 
 ---
 
-## 3. Addressing: port = profile, id = tab
+## 3. Addressing: port = profile, number = tab
 
 "A port per tab" is impossible — tabs multiplex over one connection. It resolves to:
 
-- **Profile** ⇒ a **port**. Each profile's extension is configured (in its options page) to connect to one port; the server binds a range (`basePort`..`basePort+portCount`, default 9222–9241).
-- **Tab** ⇒ a **tab id** within that profile.
+- **Profile** ⇒ a **port**. Each profile's extension is configured (in the popup) to connect to one port; the server binds a range (`basePort`..`basePort+portCount`, default 9222–9241).
+- **Tab** ⇒ a **simple number** (1, 2, 3…) the extension assigns each tab, shown in the popup.
 
-Every interaction tool takes optional `profile` (a port number or profileId) and `tabId`. Omit `profile` → the **focused profile** (the only connected one, else the most-recently-used). Omit `tabId` → the extension uses that profile's **active tab** and echoes back the id it resolved. New tools `browser_list_tabs` (aggregates every profile, composite ids like `9223:5417`) and `browser_switch_tab` round it out.
+Every interaction tool takes optional `profile` (a port number or label) and `tab` (the number). Omit `profile` → the **focused profile** (the only connected one, else the most-recently-used). Omit `tab` → the profile's **active tab**. The server maps `(profile, tab)` → the real chrome tab id before sending on the wire. New tools `browser_list_tabs` (aggregates every profile, numbered) and `browser_switch_tab` round it out.
+
+The tab numbers (`slot`s) are **stable per profile** — persisted in the extension so a number keeps pointing at the same tab across service-worker restarts. That's what lets a user say "tab 2" out loud and have it mean the same tab to the AI.
 
 ---
 
 ## 4. Request lifecycle
 
-Trace `browser_click { profile: 9223, tabId: 5417, ref, element }`:
+Trace `browser_click { profile: 9223, tab: 2, ref, element }`:
 
 ```
 AI ──MCP CallTool──▶ apps/server/src/mcp.ts
@@ -54,6 +56,7 @@ AI ──MCP CallTool──▶ apps/server/src/mcp.ts
         │
         ▼ apps/server/src/tools/index.ts
      registry.resolveProfile(9223) → ProfileConnection
+     registry.tabIdForSlot(conn, 2) → chrome tabId 5417  (refresh on miss)
      queue key "9223:5417" → serialize same-tab calls
         │
         ▼ apps/server/src/registry.ts  (send)

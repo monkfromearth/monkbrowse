@@ -3,45 +3,137 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Monkbrowse</title>
+    <title>monkbrowse</title>
     <style>
-      :root { color-scheme: light dark; }
+      :root {
+        color-scheme: light dark;
+        --bg: #ffffff;
+        --panel: #f5f4f8;
+        --text: #26232e;
+        --muted: #736f7e;
+        --border: rgba(20, 16, 28, 0.1);
+        --field: #ffffff;
+        --active: rgba(162, 171, 222, 0.16);
+        --grad: linear-gradient(135deg, #e9a294, #c2a4cd 45%, #a2abde 74%, #88b2ec);
+        --green: #16a34a;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #17151d;
+          --panel: #201d29;
+          --text: #ecebf2;
+          --muted: #9a95a7;
+          --border: rgba(255, 255, 255, 0.1);
+          --field: #1b1923;
+          --active: rgba(162, 171, 222, 0.16);
+        }
+      }
       * { box-sizing: border-box; }
-      body { font: 13px/1.5 system-ui, sans-serif; width: 268px; margin: 0; padding: 14px; }
-      .head { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; }
-      .head img { width: 22px; height: 22px; border-radius: 6px; }
-      h1 { font-size: 14px; margin: 0; flex: 1; }
-      .status { display: flex; align-items: center; gap: 6px; font-size: 12px; }
-      .dot { width: 9px; height: 9px; border-radius: 50%; }
-      .on { background: #16a34a; } .off { background: #9ca3af; }
+      html, body { margin: 0; }
+      body {
+        width: 304px;
+        font: 13px/1.45 ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
 
-      label { display: block; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; opacity: 0.7; margin: 12px 0 4px; }
-      input { font: inherit; padding: 7px 8px; width: 100%; border: 1px solid color-mix(in srgb, currentColor 22%, transparent); border-radius: 7px; background: transparent; color: inherit; }
-      input:focus { outline: 2px solid #A2ABDE; outline-offset: 0; border-color: transparent; }
-      .hint { font-size: 11px; opacity: 0.6; margin-top: 5px; }
+      header {
+        display: flex; align-items: center; gap: 9px;
+        padding: 13px 15px; border-bottom: 1px solid var(--border);
+      }
+      header .logo { width: 24px; height: 24px; border-radius: 7px; }
+      header .brand { font-weight: 650; letter-spacing: -0.01em; flex: 1; }
+      .pill {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 11px; font-weight: 600; color: var(--muted);
+        background: var(--panel); border: 1px solid var(--border);
+        padding: 3px 9px 3px 7px; border-radius: 999px;
+      }
+      .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: #9ca3af; }
+      .pill.live { color: var(--green); }
+      .pill.live .dot { background: var(--green); box-shadow: 0 0 0 3px rgba(22,163,74,0.16); }
 
-      button { font: inherit; font-weight: 600; padding: 9px 10px; margin-top: 14px; width: 100%; cursor: pointer; border: 0; border-radius: 8px; color: #fff; background: linear-gradient(90deg, #E9A294, #A2ABDE 70%, #88B2EC); }
-      button:active { filter: brightness(0.95); }
-      #saved { text-align: center; font-size: 11px; color: #16a34a; height: 14px; margin-top: 6px; opacity: 0; transition: opacity 0.2s; }
-      #saved.show { opacity: 1; }
+      section { padding: 13px 15px; }
+      .conn { border-bottom: 1px solid var(--border); }
+      .fields { display: flex; gap: 9px; }
+      .field { display: flex; flex-direction: column; gap: 5px; }
+      .field.port { width: 78px; flex: none; }
+      .field.grow { flex: 1; }
+      label {
+        font-size: 10px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.05em; color: var(--muted);
+      }
+      input {
+        font: inherit; color: inherit; background: var(--field);
+        border: 1px solid var(--border); border-radius: 8px; padding: 8px 9px; width: 100%;
+      }
+      input:focus { outline: none; border-color: #a2abde; box-shadow: 0 0 0 3px rgba(162,171,222,0.22); }
+
+      button.primary {
+        margin-top: 11px; width: 100%; cursor: pointer; color: #fff; font: inherit; font-weight: 650;
+        border: 0; border-radius: 9px; padding: 9px; background: var(--grad);
+        box-shadow: 0 1px 2px rgba(20,16,28,0.18);
+      }
+      button.primary:active { transform: translateY(0.5px); filter: brightness(0.97); }
+      .saved { height: 13px; margin-top: 7px; text-align: center; font-size: 11px; color: var(--green); opacity: 0; transition: opacity 0.2s; }
+      .saved.show { opacity: 1; }
+
+      .tabs-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 9px; }
+      .tabs-head .t { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+      .count { font-size: 11px; color: var(--muted); }
+      .list { max-height: 244px; overflow-y: auto; margin: 0 -4px; }
+      .list::-webkit-scrollbar { width: 7px; }
+      .list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+
+      .row {
+        display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: center;
+        padding: 7px 8px; border-radius: 9px;
+        animation: rise 0.22s ease both;
+      }
+      .row.active { background: var(--active); }
+      .badge {
+        width: 24px; height: 24px; border-radius: 7px; background: var(--grad); color: #fff;
+        display: grid; place-items: center; font-size: 11px; font-weight: 700;
+      }
+      .meta { min-width: 0; }
+      .title { font-size: 12.5px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .host { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .host .live { color: var(--green); font-weight: 600; }
+      .empty { color: var(--muted); font-size: 12px; padding: 8px; }
+      .foot { margin: 11px 0 0; font-size: 11px; color: var(--muted); }
+      .foot b { color: var(--text); font-weight: 600; }
+
+      @keyframes rise { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
     </style>
   </head>
   <body>
-    <div class="head">
-      <img src="/icon/48.png" alt="" />
-      <h1>Monkbrowse</h1>
-      <span class="status"><span id="dot" class="dot off"></span><span id="statusText">…</span></span>
-    </div>
+    <header>
+      <img class="logo" src="/icon/48.png" alt="" />
+      <span class="brand">monkbrowse</span>
+      <span class="pill" id="pill"><i class="dot"></i><span id="statusText">…</span></span>
+    </header>
 
-    <label for="port">Port</label>
-    <input id="port" type="number" min="1" max="65535" inputmode="numeric" />
+    <section class="conn">
+      <div class="fields">
+        <div class="field port">
+          <label for="port">Port</label>
+          <input id="port" type="number" min="1" max="65535" inputmode="numeric" />
+        </div>
+        <div class="field grow">
+          <label for="label">Label</label>
+          <input id="label" type="text" placeholder="Work, Personal…" />
+        </div>
+      </div>
+      <button id="save" class="primary">Connect</button>
+      <div id="saved" class="saved">Reconnecting…</div>
+    </section>
 
-    <label for="label">Label</label>
-    <input id="label" type="text" placeholder="Work, Personal, QA…" />
-    <div class="hint" id="range"></div>
-
-    <button id="save">Connect</button>
-    <div id="saved">Saved &amp; reconnecting…</div>
+    <section class="tabs">
+      <div class="tabs-head"><span class="t">Tabs</span><span id="tabCount" class="count"></span></div>
+      <div id="tabList" class="list"></div>
+      <p class="foot">Tell your AI: “on <b>tab&nbsp;2</b>, …”.</p>
+    </section>
 
     <script type="module" src="./main.ts"></script>
   </body>

@@ -154,6 +154,21 @@ export class ConnectionRegistry {
     this.lastUsedPort = port;
   }
 
+  /** Map a user-facing tab slot number to a real chrome tab id, or undefined. */
+  tabIdForSlot(conn: ProfileConnection, slot: number): number | undefined {
+    for (const t of conn.tabs.values()) {
+      if (t.slot === slot) return t.tabId;
+    }
+    return undefined;
+  }
+
+  /** Re-fetch a profile's tabs from its extension and refresh the cache. */
+  async refreshTabs(conn: ProfileConnection): Promise<TabInfo[]> {
+    const { tabs } = await this.send(conn, "list_tabs", {});
+    conn.tabs = new Map(tabs.map((t) => [t.tabId, t]));
+    return tabs;
+  }
+
   /**
    * Resolve a `{ profile }` selector to a connected profile.
    * - number: that port

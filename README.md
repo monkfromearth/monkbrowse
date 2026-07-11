@@ -19,7 +19,7 @@
 
 **monkbrowse** is an **MCP server + Chrome extension**. The AI talks to the server over stdio; the server drives your real browser through the extension over a local WebSocket. Because it's *your* Chrome, your sessions, cookies, and 2FA are already there — and it works on sites that block headless automation.
 
-The thing that makes it different: **a single server drives many tabs across many Chrome profiles simultaneously.** Each profile connects on its own port; tabs are addressed by id. Tools target `{ profile, tabId }`.
+The thing that makes it different: **a single server drives many tabs across many Chrome profiles simultaneously.** Each profile connects on its own port; each tab gets a simple number (1, 2, 3…) shown in the popup. Tools target `{ profile, tab }` — so you can literally tell your AI "on tab 2, do X."
 
 ```
                       ┌──── monkbrowse server (one process) ────┐
@@ -73,12 +73,12 @@ More detail, including the multi-profile walkthrough: **[docs/GETTING-STARTED.md
 
 ## Using it
 
-Address a profile by its port (or label/id), a tab by its id — or omit both to use the focused profile's active tab.
+Address a profile by its port (or label), a tab by the **simple number** shown in the popup — or omit both to use the focused profile's active tab. Because the popup shows those numbers, a user can just say "on tab 2, …".
 
 ```
-browser_list_tabs                                   → every tab across every profile (ids like "9223:5417")
+browser_list_tabs                                   → every tab across every profile, numbered 1, 2, 3…
 browser_navigate  { profile: 9223, url: "…" }       → drive the "Home" profile
-browser_snapshot  { profile: 9222, tabId: 5417 }    → read a specific tab
+browser_snapshot  { profile: 9222, tab: 2 }         → read tab 2 of the "Work" profile
 browser_click     { ref: "e12", element: "Sign in" }→ focused profile, active tab
 ```
 

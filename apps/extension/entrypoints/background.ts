@@ -78,6 +78,8 @@ export default defineBackground(() => {
           port: currentPort,
           label: currentLabel,
         };
+      case KIND.listTabs:
+        return { tabs: await enumerateTabs() };
       case KIND.settingsChanged:
         // Tell the offscreen doc to reconnect with the new port/label.
         chrome.runtime.sendMessage({ to: TO.offscreen, kind: KIND.reconnect });

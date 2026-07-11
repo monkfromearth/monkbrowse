@@ -55,7 +55,7 @@ Extension-initiated:
 
 ## AI-facing tool schemas — `packages/protocol/src/tools.ts`
 
-These are separate from the wire messages: they add `profile?` (port or profileId) and `tabId?` for the AI to target a profile+tab. The server (`apps/server/src/tools/index.ts`) resolves `profile` to a connection, threads `tabId` into the wire payload, and converts each schema to JSON Schema via the `@monkbrowse/protocol/json-schema` subpath for MCP `tools/list`.
+These are separate from the wire messages: they add `profile?` (port or label) and `tab?` — the simple per-profile number shown in the popup — for the AI to target a profile+tab. The server (`apps/server/src/tools/index.ts`) resolves `profile` to a connection and maps `tab` (a `slot`) to the real chrome `tabId`, which is what gets threaded into the wire payload. Schemas convert to JSON Schema via the `@monkbrowse/protocol/json-schema` subpath for MCP `tools/list`.
 
 ## Internal extension bridge (not on the wire)
 

@@ -21,9 +21,9 @@ describe("tool schemas", () => {
         ref: "e1",
         element: "Sign in",
         profile: 9223,
-        tabId: 5,
+        tab: 2,
       }),
-    ).toMatchObject({ profile: 9223, tabId: 5 });
+    ).toMatchObject({ profile: 9223, tab: 2 });
     expect(() => ClickTool.arguments.parse({ element: "x" })).toThrow();
   });
 
@@ -45,7 +45,7 @@ describe("tool schemas", () => {
       properties: Record<string, unknown>;
     };
     expect(Object.keys(schema.properties)).toEqual(
-      expect.arrayContaining(["ref", "element", "profile", "tabId"]),
+      expect.arrayContaining(["ref", "element", "profile", "tab"]),
     );
   });
 });

@@ -55,7 +55,7 @@ Chrome runs each profile as its own world, so the extension is loaded per profil
 2. Load the **same** unpacked extension there (`chrome://extensions` → Load unpacked).
 3. Open its Settings and give it a **different port** (e.g. `9223`) and label (e.g. `Personal`).
 
-The single server now sees both. `browser_list_tabs` aggregates every profile, with composite ids like `9223:5417` (`<port>:<tabId>`). Address a profile by port, by its label's id, or omit `profile` to use the focused one.
+The single server now sees both. `browser_list_tabs` aggregates every profile, with each tab shown as a **simple number** (1, 2, 3…) — the same number in that profile's popup. Address a tab as `{ profile, tab }`; address a profile by port or label, or omit `profile` to use the focused one.
 
 > Two profiles must not share a port. If they do, the second to connect is rejected with a message telling you to change its port — the first is never kicked off.
 

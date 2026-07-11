@@ -40,6 +40,7 @@ async function startServer(ports: number[]): Promise<Server> {
 interface FakeProfile {
   peer: Peer;
   seen: string[];
+  seenTabs: (number | undefined)[];
 }
 
 /** Connect a simulated extension: WebSocket + Peer that answers wire requests. */
@@ -49,13 +50,15 @@ function connectProfile(
   label: string,
 ): Promise<FakeProfile & { ack: HelloAck }> {
   const tabs = [
-    { tabId: 1, url: `https://${label}.example`, title: label, active: true, windowId: 1 },
-    { tabId: 2, url: "https://other.example", title: "Other", active: false, windowId: 1 },
+    { tabId: 101, slot: 1, url: `https://${label}.example`, title: label, active: true, windowId: 1 },
+    { tabId: 102, slot: 2, url: "https://other.example", title: "Other", active: false, windowId: 1 },
   ];
   const seen: string[] = [];
+  const seenTabs: (number | undefined)[] = [];
   const exec = (type: string, payload: Record<string, unknown>) => {
     seen.push(type);
-    const tabId = (payload.tabId as number | undefined) ?? 1;
+    seenTabs.push(payload.tabId as number | undefined);
+    const tabId = (payload.tabId as number | undefined) ?? 101;
     switch (type) {
       case "list_tabs":
         return { tabs };
@@ -84,7 +87,7 @@ function connectProfile(
       });
       const hello: Hello = { profileId, label, extVersion: "0.2.0", tabs };
       const ack = (await peer.request("hello", hello, { timeoutMs: 3000 })) as HelloAck;
-      resolve({ peer, seen, ack });
+      resolve({ peer, seen, seenTabs, ack });
     });
   });
 }
@@ -109,7 +112,17 @@ describe("server integration (real WS + Peer + tools)", () => {
     const r = await toolHandlers.browser_list_tabs!(current.ctx, {});
     const text = textOf(r);
     expect(text).toContain("Work");
-    expect(text).toContain(`${base}:1`);
+    expect(text).toContain("1."); // slot-numbered tabs
+  });
+
+  test("addressing by tab slot resolves to the right chrome tab id", async () => {
+    const base = nextBase();
+    current = await startServer([base]);
+    const a = await connectProfile(base, "uuid-a", "Work");
+    // slot 2 -> tabId 102 in the fake's tabs
+    await toolHandlers.browser_snapshot!(current.ctx, { profile: base, tab: 2 });
+    expect(a.seenTabs).toContain(102);
+    expect(a.seenTabs).not.toContain(101);
   });
 
   test("two profiles coexist — no eviction — and list_tabs aggregates both", async () => {
@@ -123,8 +136,8 @@ describe("server integration (real WS + Peer + tools)", () => {
     const text = textOf(await toolHandlers.browser_list_tabs!(current.ctx, {}));
     expect(text).toContain("Work");
     expect(text).toContain("Home");
-    expect(text).toContain(`${base}:1`);
-    expect(text).toContain(`${base + 1}:1`);
+    expect(text).toContain("1.");
+    expect(text).toContain("2.");
   });
 
   test("addressing routes to the named profile", async () => {

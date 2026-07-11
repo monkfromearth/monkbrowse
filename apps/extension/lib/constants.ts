@@ -19,6 +19,7 @@ export const KIND = {
   tabsPush: "tabs-push", // bg -> offscreen: forward tabs_changed
   reconnect: "reconnect", // bg -> offscreen: settings changed, reconnect
   getState: "get-state", // UI -> bg: current connection state
+  listTabs: "list-tabs", // UI -> bg: this profile's tabs with slot numbers
   settingsChanged: "settings-changed", // UI -> bg: options saved
 } as const;
 

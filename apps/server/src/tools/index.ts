@@ -17,7 +17,7 @@ import {
   TypeTool,
   WaitTool,
 } from "@monkbrowse/protocol";
-import { compositeTabId, wait } from "@monkbrowse/utils";
+import { wait } from "@monkbrowse/utils";
 
 import type { ConnectionRegistry, ProfileConnection } from "../registry";
 import type { TargetQueueManager } from "../queue";
@@ -39,15 +39,29 @@ function ok(text: string, extra: Content[] = []): ToolResult {
   return { content: [{ type: "text", text }, ...extra] };
 }
 
-/** Resolve profile + tab, then run `fn` serialized per (port, tab). */
-function onTab<T>(
+/** Resolve profile + tab slot -> real tabId, then run `fn` serialized per tab. */
+async function onTab<T>(
   ctx: ToolContext,
-  args: { profile?: number | string; tabId?: number },
+  args: { profile?: number | string; tab?: number },
   fn: (conn: ProfileConnection, tabId?: number) => Promise<T>,
 ): Promise<T> {
   const conn = ctx.registry.resolveProfile(args.profile);
-  const key = `${conn.port}:${args.tabId ?? "active"}`;
-  return ctx.queue.enqueue(key, () => fn(conn, args.tabId));
+  let tabId: number | undefined;
+  if (args.tab != null) {
+    tabId = ctx.registry.tabIdForSlot(conn, args.tab);
+    if (tabId == null) {
+      // The slot may be newer than our cache — refresh once and retry.
+      await ctx.registry.refreshTabs(conn);
+      tabId = ctx.registry.tabIdForSlot(conn, args.tab);
+    }
+    if (tabId == null) {
+      throw new Error(
+        `No tab numbered ${args.tab} in profile "${conn.label}". Run browser_list_tabs to see current tabs.`,
+      );
+    }
+  }
+  const key = `${conn.port}:${tabId ?? "active"}`;
+  return ctx.queue.enqueue(key, () => fn(conn, tabId));
 }
 
 export type ToolHandler = (
@@ -100,7 +114,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
   },
 
   browser_snapshot: (ctx, raw) => {
-    const args = raw as { profile?: number | string; tabId?: number };
+    const args = raw as { profile?: number | string; tab?: number };
     return onTab(ctx, args, async (conn, tabId) => {
       const snap = await captureAriaSnapshot(ctx.registry, conn, tabId);
       return { content: snap.content };
@@ -213,30 +227,48 @@ export const toolHandlers: Record<string, ToolHandler> = {
       conns.map(async (conn) => {
         let tabs: TabInfo[];
         try {
-          const res = await ctx.registry.send(conn, "list_tabs", {});
-          tabs = res.tabs;
+          tabs = await ctx.registry.refreshTabs(conn);
         } catch {
           tabs = [...conn.tabs.values()];
         }
+        tabs.sort((a, b) => a.slot - b.slot);
         const lines = tabs.map((t) => {
-          const id = compositeTabId(conn.port, t.tabId);
-          const active = t.active ? " [active]" : "";
-          return `  - ${id}${active}  ${t.title || "(untitled)"} — ${t.url}`;
+          const active = t.active ? "  ● active" : "";
+          const host = hostOf(t.url);
+          return `  ${t.slot}. ${t.title || "(untitled)"}${host ? ` — ${host}` : ""}${active}`;
         });
-        const header = `Profile "${conn.label}" (port ${conn.port}, id ${conn.profileId ?? "?"}):`;
+        const header = `${conn.label} (port ${conn.port}):`;
         return [header, ...(lines.length ? lines : ["  (no tabs)"])].join("\n");
       }),
     );
-    return ok(sections.join("\n\n"));
+    const example = conns[0]!.port;
+    return ok(
+      `Address a tab as { profile, tab } — e.g. { profile: ${example}, tab: 1 }.\n\n` +
+        sections.join("\n\n"),
+    );
   },
 
   browser_switch_tab: async (ctx, raw) => {
     const args = raw as SwitchArgs;
     const conn = ctx.registry.resolveProfile(args.profile);
-    const res = await ctx.registry.send(conn, "browser_switch_tab", {
-      tabId: args.tabId,
-    });
+    let tabId = ctx.registry.tabIdForSlot(conn, args.tab);
+    if (tabId == null) {
+      await ctx.registry.refreshTabs(conn);
+      tabId = ctx.registry.tabIdForSlot(conn, args.tab);
+    }
+    if (tabId == null) {
+      throw new Error(`No tab numbered ${args.tab} in profile "${conn.label}".`);
+    }
+    await ctx.registry.send(conn, "browser_switch_tab", { tabId });
     ctx.registry.markUsed(conn.port);
-    return ok(`Switched to tab ${res.activeTabId} in "${conn.label}"`);
+    return ok(`Switched to tab ${args.tab} in "${conn.label}"`);
   },
 };
+
+function hostOf(url: string): string {
+  try {
+    return new URL(url).host;
+  } catch {
+    return "";
+  }
+}

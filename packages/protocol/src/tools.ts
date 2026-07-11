@@ -27,13 +27,15 @@ const target = {
     .union([z.number(), z.string()])
     .optional()
     .describe(
-      "Target profile: a port number (e.g. 9222) or a profileId. Omit to use the focused profile.",
+      "Target profile: a port number (e.g. 9222) or its label/profileId. Omit to use the focused profile.",
     ),
-  tabId: z
+  tab: z
     .number()
+    .int()
+    .positive()
     .optional()
     .describe(
-      "Target tab id within the profile. Omit to act on the profile's active tab.",
+      "Tab number as shown in the monkbrowse popup and browser_list_tabs (1, 2, 3…). Omit to act on the profile's active tab.",
     ),
 };
 
@@ -164,7 +166,7 @@ export const SwitchTabTool = def(
   "browser_switch_tab",
   "Make a specific tab the active tab in its profile",
   z.object({
-    tabId: z.number().describe("The tab id to activate"),
+    tab: z.number().int().positive().describe("The tab number to activate (1, 2, 3…)"),
     profile: target.profile,
   }),
 );

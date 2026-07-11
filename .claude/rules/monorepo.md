@@ -18,6 +18,7 @@ Turborepo + **Bun** workspaces + TypeScript. `apps/{server,extension}` + `packag
 ```bash
 bun install
 bun run typecheck          # turbo; extension `prepare` (wxt) runs before its typecheck
+bun run test               # bun test across packages + server (integration uses real WS + Peer)
 bun run build              # server dist + extension .output/chrome-mv3
 bun run dev:server         # bun --watch
 bun run dev:extension      # wxt dev

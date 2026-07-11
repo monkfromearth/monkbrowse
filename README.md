@@ -101,6 +101,7 @@ assets/            brand: logo, wordmark, lockup, icon
 ```bash
 bun install
 bun run typecheck          # turbo, all packages + apps
+bun run test               # bun test — unit + server integration (no browser needed)
 bun run build              # server → apps/server/dist ; extension → apps/extension/.output/chrome-mv3
 bun run dev:server         # bun --watch on the server
 bun run dev:extension      # wxt dev

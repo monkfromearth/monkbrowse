@@ -9,6 +9,7 @@
     "./mcp.config": "./src/mcp.config.ts"
   },
   "scripts": {
+    "test": "bun test",
     "typecheck": "tsc --noEmit"
   }
 }

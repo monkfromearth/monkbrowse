@@ -12,6 +12,7 @@
     "zod-to-json-schema": "catalog:"
   },
   "scripts": {
+    "test": "bun test",
     "typecheck": "tsc --noEmit"
   }
 }

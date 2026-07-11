@@ -15,6 +15,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
     "lint": "turbo run lint",
     "package:extension": "turbo run package --filter=@monkbrowse/extension",
     "dev:server": "turbo run dev --filter=@monkbrowse/server",

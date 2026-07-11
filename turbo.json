@@ -16,6 +16,10 @@
     "lint": {
       "outputs": []
     },
+    "test": {
+      "dependsOn": ["prepare"],
+      "outputs": []
+    },
     "dev": {
       "cache": false,
       "persistent": true

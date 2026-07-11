@@ -124,7 +124,7 @@ Navigation, screenshots, tab list/switch run directly in the SW; DOM ops go to t
 ## 9. Build & run
 
 - **Server:** dev with Bun (`bun --watch`); ship with **tsup** to an ESM Node bin (`apps/server/tsup.config.ts` inlines the `@monkbrowse/*` packages via `noExternal`, keeps npm deps external). `npx monkbrowse` works like v1.
-- **Extension:** **WXT** (Vite) builds the MV3 bundle; `wxt build` → unpacked `.output/chrome-mv3`, `wxt zip` → Web Store zip.
+- **Extension:** **WXT** (Vite) builds the MV3 bundle; `wxt build` → unpacked `dist/chrome-mv3`, `wxt zip` → Web Store zip.
 - **Isomorphism guard:** `packages/protocol` + `packages/messaging` compile with no node/chrome/DOM types, so a leaked `process`/`chrome`/`document` fails typecheck rather than breaking the service worker at runtime.
 
 ---

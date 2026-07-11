@@ -44,7 +44,7 @@ turbo.json · package.json (bun workspaces + catalog) · tsconfig.base.json
 ```bash
 bun install
 bun run typecheck        # turbo: all packages + apps (extension prepare runs first)
-bun run build            # server → apps/server/dist/index.js ; extension → apps/extension/.output/chrome-mv3
+bun run build            # server → apps/server/dist/index.js ; extension → apps/extension/dist/chrome-mv3
 bun run dev:server       # bun --watch on the server
 bun run dev:extension    # wxt dev server
 bun run package:extension # wxt zip for the Chrome Web Store

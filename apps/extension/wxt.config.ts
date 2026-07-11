@@ -2,6 +2,8 @@ import { defineConfig } from "wxt";
 
 // https://wxt.dev/api/config.html
 export default defineConfig({
+  // Build into dist/ (dist/chrome-mv3, dist/*.zip) to match the server's dist/.
+  outDir: "dist",
   zip: {
     name: "monkbrowse",
   },

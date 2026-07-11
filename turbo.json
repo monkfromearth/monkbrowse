@@ -4,7 +4,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build", "prepare"],
-      "outputs": ["dist/**", ".output/**", ".wxt/**"]
+      "outputs": ["dist/**", ".wxt/**"]
     },
     "prepare": {
       "cache": false
@@ -26,7 +26,7 @@
     },
     "package": {
       "dependsOn": ["build"],
-      "outputs": [".output/*.zip"]
+      "outputs": ["dist/*.zip"]
     }
   }
 }

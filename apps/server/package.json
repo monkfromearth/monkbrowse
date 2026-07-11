@@ -14,7 +14,7 @@
     "dev": "bun run --watch src/index.ts",
     "build": "tsup && shx chmod +x dist/*.js",
     "typecheck": "tsc --noEmit",
-    "inspector": "bunx @modelcontextprotocol/inspector node dist/index.js"
+    "inspector": "bunx @modelcontextprotocol/inspector bun dist/index.js"
   },
   "dependencies": {
     "@monkbrowse/config": "workspace:*",

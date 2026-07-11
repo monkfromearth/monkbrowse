@@ -63,9 +63,9 @@ Full detail: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** · wire protocol: 
 }
 ```
 
-Or run the local build directly: `node apps/server/dist/index.js`.
+Or run the local build directly: `bun apps/server/dist/index.js`.
 
-**2. The extension** — `chrome://extensions` → **Developer mode** → **Load unpacked** → `apps/extension/.output/chrome-mv3`. Open its **options**, set this profile's **port** (e.g. `9222`) and a **label**, then Connect. The toolbar badge turns **on** when connected.
+**2. The extension** — `chrome://extensions` → **Developer mode** → **Load unpacked** → `apps/extension/dist/chrome-mv3`. Open its **options**, set this profile's **port** (e.g. `9222`) and a **label**, then Connect. The toolbar badge turns **on** when connected.
 
 **3. Add more profiles** — load the extension in another Chrome profile and give it a *different* port (`9223`, …). The one server sees them all.
 
@@ -102,7 +102,7 @@ assets/            brand: logo, wordmark, lockup, icon
 bun install
 bun run typecheck          # turbo, all packages + apps
 bun run test               # bun test — unit + server integration (no browser needed)
-bun run build              # server → apps/server/dist ; extension → apps/extension/.output/chrome-mv3
+bun run build              # server → apps/server/dist ; extension → apps/extension/dist/chrome-mv3
 bun run dev:server         # bun --watch on the server
 bun run dev:extension      # wxt dev
 bun run package:extension  # wxt zip for the Chrome Web Store

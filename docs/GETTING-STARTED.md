@@ -17,7 +17,7 @@ bun run build
 
 This produces:
 - **Server:** `apps/server/dist/index.js` (a Node-compatible bin, command `monkbrowse`)
-- **Extension:** `apps/extension/.output/chrome-mv3/` (unpacked, ready to load)
+- **Extension:** `apps/extension/dist/chrome-mv3/` (unpacked, ready to load)
 
 ## 2. Add the server to your MCP client
 
@@ -25,7 +25,7 @@ This produces:
 {
   "mcpServers": {
     "monkbrowse": {
-      "command": "node",
+      "command": "bun",
       "args": ["/absolute/path/to/apps/server/dist/index.js"]
     }
   }
@@ -40,7 +40,7 @@ Options (rarely needed): `--base-port <n>` (default `9222`) and `--ports <count>
 
 1. Open `chrome://extensions`.
 2. Turn on **Developer mode** (top right).
-3. **Load unpacked** → select `apps/extension/.output/chrome-mv3`.
+3. **Load unpacked** → select `apps/extension/dist/chrome-mv3`.
 4. The **monkbrowse** icon appears in the toolbar. Click it → **Settings**.
 5. Set a **Port** (e.g. `9222`) and a **Label** (e.g. `Work`). Save.
 6. The toolbar badge shows **on** when the extension is connected to the server.

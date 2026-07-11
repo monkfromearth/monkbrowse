@@ -1,10 +1,17 @@
-import { KIND, TO } from "../../lib/constants";
+import { listPorts, mcpConfig } from "@monkbrowse/config/mcp.config";
 
-interface State {
-  connected: boolean;
-  port: number | null;
-  label: string;
-}
+import { KIND, TO } from "../../lib/constants";
+import { getIdentity, saveSettings } from "../../lib/identity";
+
+const portInput = document.getElementById("port") as HTMLInputElement;
+const labelInput = document.getElementById("label") as HTMLInputElement;
+const dot = document.getElementById("dot")!;
+const statusText = document.getElementById("statusText")!;
+const saved = document.getElementById("saved")!;
+
+const ports = listPorts();
+document.getElementById("range")!.textContent =
+  `Server range ${ports[0]}–${ports[ports.length - 1]}. One port per profile.`;
 
 async function bg(kind: string): Promise<unknown> {
   const res = (await chrome.runtime.sendMessage({ to: TO.bg, kind })) as
@@ -14,30 +21,37 @@ async function bg(kind: string): Promise<unknown> {
   return res?.ok ? res.result : undefined;
 }
 
-async function render(): Promise<void> {
-  const state = ((await bg(KIND.getState)) as State | undefined) ?? {
-    connected: false,
-    port: null,
-    label: "",
-  };
-  const status = document.getElementById("status")!;
-  status.replaceChildren();
-  const dot = document.createElement("span");
-  dot.className = `dot ${state.connected ? "on" : "off"}`;
-  status.append(dot, state.connected ? "Connected" : "Disconnected");
-  document.getElementById("label")!.textContent = state.label || "—";
-  document.getElementById("port")!.textContent = state.port
-    ? String(state.port)
-    : "—";
+function paintStatus(connected: boolean): void {
+  dot.className = `dot ${connected ? "on" : "off"}`;
+  statusText.textContent = connected ? "Connected" : "Disconnected";
 }
 
-document.getElementById("reconnect")!.addEventListener("click", async () => {
+async function refreshStatus(): Promise<void> {
+  const state = (await bg(KIND.getState)) as { connected: boolean } | undefined;
+  paintStatus(Boolean(state?.connected));
+}
+
+async function load(): Promise<void> {
+  const { port, label } = await getIdentity();
+  portInput.value = String(port);
+  labelInput.value = label;
+  await refreshStatus();
+}
+
+document.getElementById("save")!.addEventListener("click", async () => {
+  const port = Number(portInput.value);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    portInput.focus();
+    return;
+  }
+  await saveSettings(port, labelInput.value || `Profile @${port}`);
   await chrome.runtime.sendMessage({ to: TO.bg, kind: KIND.settingsChanged });
-  setTimeout(render, 500);
+  saved.classList.add("show");
+  // Poll for the reconnect to land.
+  for (const delay of [400, 900, 1600]) {
+    setTimeout(refreshStatus, delay);
+  }
+  setTimeout(() => saved.classList.remove("show"), 2000);
 });
 
-document.getElementById("settings")!.addEventListener("click", () => {
-  chrome.runtime.openOptionsPage();
-});
-
-void render();
+void load();

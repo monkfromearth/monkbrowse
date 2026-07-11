@@ -6,25 +6,43 @@
     <title>Monkbrowse</title>
     <style>
       :root { color-scheme: light dark; }
-      body { font: 13px/1.5 system-ui, sans-serif; width: 260px; margin: 0; padding: 14px; }
-      h1 { font-size: 14px; margin: 0; }
+      * { box-sizing: border-box; }
+      body { font: 13px/1.5 system-ui, sans-serif; width: 268px; margin: 0; padding: 14px; }
       .head { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; }
       .head img { width: 22px; height: 22px; border-radius: 6px; }
-      .row { display: flex; justify-content: space-between; margin: 6px 0; }
-      .muted { opacity: 0.65; }
-      .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle; }
+      h1 { font-size: 14px; margin: 0; flex: 1; }
+      .status { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+      .dot { width: 9px; height: 9px; border-radius: 50%; }
       .on { background: #16a34a; } .off { background: #9ca3af; }
-      button { font: inherit; padding: 6px 10px; margin-top: 10px; width: 100%; cursor: pointer; }
-      a { color: inherit; }
+
+      label { display: block; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; opacity: 0.7; margin: 12px 0 4px; }
+      input { font: inherit; padding: 7px 8px; width: 100%; border: 1px solid color-mix(in srgb, currentColor 22%, transparent); border-radius: 7px; background: transparent; color: inherit; }
+      input:focus { outline: 2px solid #A2ABDE; outline-offset: 0; border-color: transparent; }
+      .hint { font-size: 11px; opacity: 0.6; margin-top: 5px; }
+
+      button { font: inherit; font-weight: 600; padding: 9px 10px; margin-top: 14px; width: 100%; cursor: pointer; border: 0; border-radius: 8px; color: #fff; background: linear-gradient(90deg, #E9A294, #A2ABDE 70%, #88B2EC); }
+      button:active { filter: brightness(0.95); }
+      #saved { text-align: center; font-size: 11px; color: #16a34a; height: 14px; margin-top: 6px; opacity: 0; transition: opacity 0.2s; }
+      #saved.show { opacity: 1; }
     </style>
   </head>
   <body>
-    <div class="head"><img src="/icon/48.png" alt="" /><h1>Monkbrowse</h1></div>
-    <div class="row"><span>Status</span><span id="status"><span class="dot off"></span>…</span></div>
-    <div class="row"><span>Profile</span><span id="label" class="muted">—</span></div>
-    <div class="row"><span>Port</span><span id="port" class="muted">—</span></div>
-    <button id="reconnect">Reconnect</button>
-    <button id="settings">Settings…</button>
+    <div class="head">
+      <img src="/icon/48.png" alt="" />
+      <h1>Monkbrowse</h1>
+      <span class="status"><span id="dot" class="dot off"></span><span id="statusText">…</span></span>
+    </div>
+
+    <label for="port">Port</label>
+    <input id="port" type="number" min="1" max="65535" inputmode="numeric" />
+
+    <label for="label">Label</label>
+    <input id="label" type="text" placeholder="Work, Personal, QA…" />
+    <div class="hint" id="range"></div>
+
+    <button id="save">Connect</button>
+    <div id="saved">Saved &amp; reconnecting…</div>
+
     <script type="module" src="./main.ts"></script>
   </body>
 </html>

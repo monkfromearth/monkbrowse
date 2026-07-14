@@ -79,7 +79,15 @@ function updateContext(): void {
   } else if (!connected && allTabs.length) {
     ctx.className = "ctx warn";
     ctx.hidden = false;
-    ctx.textContent = "Not connected. Start your AI client to link this Chrome.";
+    const msg = document.createElement("span");
+    msg.className = "msg";
+    msg.textContent = "Not connected. Start your AI client to link this Chrome.";
+    const help = document.createElement("button");
+    help.className = "ctxlink";
+    help.type = "button";
+    help.textContent = "How to connect →";
+    help.addEventListener("click", () => openDocs("/guide/install"));
+    ctx.append(msg, help);
   } else {
     ctx.hidden = true;
   }

@@ -77,10 +77,15 @@
       .info:hover { color: var(--accent); }
       .info:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-      .ctx { display: flex; align-items: center; gap: 8px; margin: 0 16px 8px; padding: 8px 11px; border-radius: 9px; font-size: 12px; }
+      .ctx { display: flex; align-items: center; gap: 8px; margin: 0 16px 8px; padding: 9px 11px; border-radius: 9px; font-size: 12px; }
+      .ctx .msg { flex: 1; min-width: 0; }
       .ctx.acting { background: var(--active); color: var(--text); }
-      .ctx.warn { background: var(--warn-bg); color: var(--warn-fg); }
+      /* Offline notice: extra bottom margin sets it apart from the tab list below. */
+      .ctx.warn { background: var(--warn-bg); color: var(--warn-fg); margin-bottom: 16px; flex-wrap: wrap; }
       .ctx b { font-weight: 650; }
+      .ctxlink { flex: none; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; padding: 0; white-space: nowrap; }
+      .ctxlink:hover { opacity: 0.82; }
+      .ctxlink:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-radius: 4px; }
       .pulse { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1.1s ease-in-out infinite; }
       @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.82); } }
 

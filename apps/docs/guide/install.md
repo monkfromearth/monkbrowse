@@ -119,12 +119,15 @@ pnpm dlx monkbrowse
 
 ## 2. Install the Chrome extension
 
-monkbrowse drives your real Chrome, so it needs a small extension in the browser.
+monkbrowse drives your real Chrome, so it needs a small extension in the browser. Install it from the Chrome Web Store in one click, and it auto-updates:
 
-- **Chrome Web Store** (recommended, coming soon): one click, auto-updates. The listing link goes here once review clears.
-- **Load it now (manual):** grab the latest `monkbrowse-*.zip` from the [GitHub releases](https://github.com/monkfromearth/monkbrowse/releases), unzip it, then in Chrome open `chrome://extensions`, turn on **Developer mode** (top right), click **Load unpacked**, and pick the unzipped folder.
+<a href="https://chromewebstore.google.com/detail/monkbrowse"><img alt="Add monkbrowse to Chrome" src="https://img.shields.io/badge/Add%20to%20Chrome-monkbrowse-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" height="34"></a>
 
-Pin the monkbrowse icon so it is easy to reach.
+Then pin the monkbrowse icon so it is easy to reach.
+
+::: info Listing in review
+The Chrome Web Store listing is submitted and under review. The button above goes live the moment it is approved.
+:::
 
 ## 3. Share a tab and go
 

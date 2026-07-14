@@ -52,7 +52,8 @@ export default defineConfig({
       { icon: "github", link: "https://github.com/monkfromearth/monkbrowse" },
     ],
     footer: {
-      message: "Apache-2.0 licensed.",
+      message:
+        'Apache-2.0 licensed. <a href="/monkbrowse/privacy">Privacy</a>',
       copyright: "monkbrowse — drive your real browser with AI.",
     },
     search: { provider: "local" },

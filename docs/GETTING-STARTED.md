@@ -22,16 +22,15 @@ The server is on npm, so your client just runs it — nothing to download or bui
 
 One-click buttons and the exact spot each client keeps this are on the **[Install page](https://monkfromearth.github.io/monkbrowse/guide/install)**. Options (rarely needed): `--base-port <n>` (default `9222`) and `--ports <count>` (default `20`) set the profile port range.
 
-## 2. Load the extension in your first profile
+## 2. Install the extension in your first profile
 
-Download the latest `monkbrowse-*.zip` from [releases](https://github.com/monkfromearth/monkbrowse/releases) and unzip it (or build from source and use `apps/extension/dist/chrome-mv3`). Then:
+Install monkbrowse from the **[Chrome Web Store](https://chromewebstore.google.com/detail/monkbrowse)** (one click, auto-updates). Then:
 
-1. Open `chrome://extensions`.
-2. Turn on **Developer mode** (top right).
-3. **Load unpacked** → select the unzipped folder.
-4. Click the **monkbrowse** toolbar icon — the popup opens.
-5. Set a **Port** (e.g. `9222`) and a **Label** (e.g. `Work`), click **Connect**.
-6. The status reads **Connected** once it reaches a running server.
+1. Click the **monkbrowse** toolbar icon — the popup opens.
+2. Set a **Port** (e.g. `9222`) and a **Label** (e.g. `Work`), then **Connect**.
+3. The status reads **Connected** once it reaches a running server.
+
+> Each Chrome profile is its own world, so install the extension in each profile you want the AI to reach.
 
 > **A server must be running for it to connect.** The extension alone connects
 > to nothing. Your MCP client starts the server when it launches — but to check

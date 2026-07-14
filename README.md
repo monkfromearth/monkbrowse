@@ -74,36 +74,50 @@ Two small steps. No path juggling, no build. The server runs from npm with `npx`
 &nbsp;
 <a href="vscode:mcp/install?%7B%22name%22%3A%22monkbrowse%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22monkbrowse%22%5D%7D"><img alt="Install in VS Code" src="https://img.shields.io/badge/Install%20in-VS%20Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" height="30"></a>
 
-**Or one command** (the CLI agent you already use):
+**Or one command** — the CLI agent you already use:
+
+Claude Code:
 
 ```bash
-# Claude Code
 claude mcp add monkbrowse -- npx -y monkbrowse
+```
 
-# Gemini CLI
+Gemini CLI:
+
+```bash
 gemini mcp add monkbrowse npx -y monkbrowse
+```
 
-# Codex CLI (OpenAI)
+Codex CLI (OpenAI):
+
+```bash
 codex mcp add monkbrowse -- npx -y monkbrowse
+```
 
-# VS Code (also has the button above)
+VS Code (also has the button above):
+
+```bash
 code --add-mcp '{"name":"monkbrowse","command":"npx","args":["-y","monkbrowse"]}'
 ```
 
-**Windsurf / Claude Desktop / anything else** — same server config everywhere:
+**Windsurf / Claude Desktop / anything else** — drop this into its MCP config:
 
-```jsonc
-{ "mcpServers": { "monkbrowse": { "command": "npx", "args": ["-y", "monkbrowse"] } } }
+```json
+{
+  "mcpServers": {
+    "monkbrowse": {
+      "command": "npx",
+      "args": ["-y", "monkbrowse"]
+    }
+  }
+}
 ```
 
 Prefer `bunx monkbrowse` or `pnpm dlx monkbrowse`? Both work. See the [Install docs](https://monkfromearth.github.io/monkbrowse/guide/install) for the exact spot each client keeps this.
 
 ### Step 2: Install the Chrome extension
 
-monkbrowse drives your real Chrome, so it needs a small extension:
-
-- **Chrome Web Store** (coming soon): one click, auto-updates.
-- **Now:** download the latest `monkbrowse-*.zip` from [releases](https://github.com/monkfromearth/monkbrowse/releases), unzip, then in `chrome://extensions` turn on **Developer mode** and **Load unpacked** the folder.
+monkbrowse drives your real Chrome, so it needs a small extension. Install it from the **[Chrome Web Store](https://monkfromearth.github.io/monkbrowse/guide/install#_2-install-the-chrome-extension)** (one click, auto-updates).
 
 Open the popup, toggle a tab **on** (it gets a number like `#1`), and tell the AI *"on tab 1, do X."* The AI only ever sees tabs you shared. For multiple Chrome profiles, give each its own port in the popup ([why](https://monkfromearth.github.io/monkbrowse/guide/connection)).
 
@@ -204,6 +218,10 @@ bun run package:extension  # wxt zip
 ```
 
 Two hard rules for this repo: the **server stays Node-compatible** (no `Bun.*` in `apps/server`), and **`packages/protocol` + `packages/messaging` stay isomorphic** (no `node`/`chrome`/`DOM` globals, so they bundle into both the Node server and the MV3 service worker). See **[.claude/rules/monorepo.md](.claude/rules/monorepo.md)**.
+
+## Privacy
+
+**100% local.** The server binds only to `127.0.0.1`, the extension talks only to that local server, and **nothing is sent to us or any third party** — no telemetry, no analytics, no account. The AI sees only the tabs you explicitly share, and a call against an unshared tab is refused. Full [privacy policy](https://monkfromearth.github.io/monkbrowse/privacy).
 
 ## Status
 

@@ -43,9 +43,12 @@ Deferred (need a bigger change / empirical check):
 - [x] Install page + one-click deep links (Cursor/VS Code) and copy commands for
       every client; README leads with `npx monkbrowse`. `catalog:` resolves clean
       via `bun publish` (verified with `bun pm pack`).
-- [ ] `npm publish` (server) — needs `npm login` first, then `cd apps/server && bun publish`
-- [ ] Chrome Web Store submission (zip exists: `apps/extension/dist/monkbrowse-*.zip`)
-      + store listing copy/screenshots; then swap the "coming soon" store link
+- [x] `npm publish` — 0.2.0 live; **0.2.1 (rich README + CLI cmds) pending a 2FA OTP**
+- [x] Store submission prep: playbook (`docs/CHROME-WEBSTORE.md`), zip, listing copy,
+      permission justifications, live privacy policy page
+- [ ] Chrome Web Store: submit for review, then swap the placeholder store URL
+      (`chromewebstore.google.com/detail/monkbrowse`) for the real `/<ITEM_ID>` everywhere
+- [ ] Screenshots (1280×800) for the store listing + README demo GIF
 - [ ] CI: GitHub Actions running `typecheck · test · build · lint` on push
 - [x] Flip repo public; docs site live at monkfromearth.github.io/monkbrowse/ (Pages via Actions)
 

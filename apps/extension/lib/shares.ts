@@ -27,7 +27,12 @@ async function ensure(): Promise<void> {
       slots = (s[SLOT_KEY] as Record<number, number> | undefined) ?? {};
     })();
   }
-  await loading;
+  try {
+    await loading;
+  } catch (err) {
+    loading = null; // a storage hiccup must not brick the cache forever
+    throw err;
+  }
 }
 
 async function persist(): Promise<void> {

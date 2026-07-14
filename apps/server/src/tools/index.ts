@@ -56,6 +56,7 @@ async function onTab<T>(
   fn: (conn: ProfileConnection, tabId?: number) => Promise<T>,
 ): Promise<T> {
   const conn = ctx.registry.resolveProfile(args.profile);
+  ctx.registry.markUsed(conn.port); // this is a real action; list_tabs refresh is not
   let tabId: number;
   if (args.tab != null) {
     let resolved = ctx.registry.tabIdForSlot(conn, args.tab);

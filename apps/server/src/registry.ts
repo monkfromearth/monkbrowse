@@ -244,15 +244,16 @@ export class ConnectionRegistry {
     payload: RequestOf<T>,
     opts: { timeoutMs?: number } = {},
   ): Promise<ResponseOf<T>> {
-    if (!conn.peer || conn.status !== "connected") {
-      throw new Error(this.noConnectionMessage(conn));
-    }
     const timeoutMs =
       opts.timeoutMs ?? messageTimeouts[type] ?? mcpConfig.defaultTimeoutMs;
-    this.markUsed(conn.port);
 
     const doSend = async (): Promise<ResponseOf<T>> => {
-      const raw = await conn.peer!.request(type, payload, { timeoutMs });
+      // Re-check on every attempt: the profile may have disconnected between the
+      // first request's timeout and the retry (else `conn.peer!` would throw).
+      if (!conn.peer || conn.status !== "connected") {
+        throw new Error(this.noConnectionMessage(conn));
+      }
+      const raw = await conn.peer.request(type, payload, { timeoutMs });
       const schema = socketMessages[type].response;
       return schema.parse(raw) as ResponseOf<T>;
     };

@@ -54,13 +54,15 @@ describe("execWire — tab operations", () => {
     expect(await isShared(tab.id)).toBe(false);
   });
 
-  test("screenshot brings a background target tab to front first", async () => {
+  test("screenshot captures a background tab, then restores the user's focus", async () => {
     const bg = chrome.addTab({ id: 200, active: false });
-    chrome.addTab({ id: 201, active: true });
+    chrome.addTab({ id: 201, active: true }); // what the user is looking at
     await setShared(bg.id, true);
     await execWire("browser_screenshot", { tabId: bg.id });
-    expect(chrome.tabs.find((t) => t.id === 200)!.active).toBe(true);
     expect(chrome.screenshots).toBe(1);
+    // focus is restored to the originally-active tab, not left on the target
+    expect(chrome.tabs.find((t) => t.id === 201)!.active).toBe(true);
+    expect(chrome.tabs.find((t) => t.id === 200)!.active).toBe(false);
   });
 
   test("list_tabs returns only shared tabs with numbers", async () => {

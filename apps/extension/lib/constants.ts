@@ -18,6 +18,7 @@ export const KIND = {
   socketStatus: "socket-status", // offscreen -> bg: report connected/disconnected
   tabsPush: "tabs-push", // bg -> offscreen: forward tabs_changed
   reconnect: "reconnect", // bg -> offscreen: settings changed, reconnect
+  statusQuery: "status-query", // bg -> offscreen: are you connected? (SW restarted)
   getState: "get-state", // UI -> bg: current connection state
   listTabs: "list-tabs", // UI -> bg: this profile's tabs (all, with shared flag)
   toggleShare: "toggle-share", // UI -> bg: share/unshare a tab with the AI

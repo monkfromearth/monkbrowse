@@ -14,7 +14,11 @@ import { KIND, TO } from "../../lib/constants";
 let peer: Peer | null = null;
 let ws: WebSocket | null = null;
 let attempt = 0;
-let closedByUs = false;
+// Each connect() bumps this. A socket only reconnects if it's still the current
+// generation — so a superseded socket's late `close` can't spawn a rival socket
+// (the old reconnect-storm bug). `stopped` freezes reconnects (e.g. on conflict).
+let generation = 0;
+let stopped = false;
 
 async function bgSend(kind: string, extra: Record<string, unknown> = {}) {
   const res = (await chrome.runtime.sendMessage({ to: TO.bg, kind, ...extra })) as
@@ -47,22 +51,25 @@ function browserSocket(socket: WebSocket): PeerSocket {
   };
 }
 
-function closeCurrent(): void {
-  closedByUs = true;
-  try {
-    ws?.close();
-  } catch {
-    // already closed
-  }
-}
-
-function scheduleReconnect(): void {
+function scheduleReconnect(gen: number): void {
   const delay = backoffDelay(attempt++, 1_000, 30_000);
-  setTimeout(() => void connect(), delay);
+  setTimeout(() => {
+    if (gen === generation && !stopped) void connect();
+  }, delay);
 }
 
 async function connect(): Promise<void> {
-  closedByUs = false;
+  const gen = ++generation; // this call is now the active generation
+  stopped = false;
+  // Drop any prior socket; its onClose sees a stale gen and won't reconnect.
+  try {
+    ws?.close();
+  } catch {
+    // already closing
+  }
+  ws = null;
+  peer = null;
+
   let info: { hello: Hello; assignedPort: number };
   try {
     info = (await bgSend(KIND.helloInfo)) as {
@@ -70,43 +77,52 @@ async function connect(): Promise<void> {
       assignedPort: number;
     };
   } catch {
-    scheduleReconnect();
+    scheduleReconnect(gen);
     return;
   }
+  if (gen !== generation) return; // superseded while awaiting
 
   const socket = new WebSocket(`ws://${mcpConfig.host}:${info.assignedPort}`);
   ws = socket;
-  peer = new Peer(
+  const p = new Peer(
     browserSocket(socket),
     {
       onRequest: (type, payload) => bgSend(KIND.exec, { type, payload }),
       onClose: () => {
+        if (gen !== generation) return; // a newer socket has taken over
         reportStatus(false);
         peer = null;
-        if (!closedByUs) scheduleReconnect();
+        if (!stopped) scheduleReconnect(gen);
       },
     },
     { defaultTimeoutMs: mcpConfig.defaultTimeoutMs },
   );
+  peer = p;
 
   socket.addEventListener("open", () => {
     void (async () => {
+      if (gen !== generation) {
+        socket.close();
+        return;
+      }
       try {
-        const raw = await peer!.request("hello", info.hello, {
-          timeoutMs: 10_000,
-        });
-        const ack = HelloAckSchema.parse(raw);
+        const ack = HelloAckSchema.parse(
+          await p.request("hello", info.hello, { timeoutMs: 10_000 }),
+        );
         if (ack.ok) {
           attempt = 0;
           reportStatus(true);
         } else {
-          reportStatus(false);
+          // Port conflict etc. Don't retry until the user changes settings.
           console.error("[offscreen] hello rejected:", ack.reason);
-          closeCurrent();
+          stopped = true;
+          reportStatus(false);
+          socket.close();
         }
       } catch (err) {
+        // Transient handshake failure — let onClose schedule a reconnect.
         console.error("[offscreen] handshake failed:", err);
-        closeCurrent();
+        socket.close();
       }
     })();
   });
@@ -120,9 +136,11 @@ chrome.runtime.onMessage.addListener((msg) => {
   if (msg.kind === KIND.tabsPush) {
     peer?.notify("tabs_changed", { tabs: msg.tabs });
   } else if (msg.kind === KIND.reconnect) {
-    closeCurrent();
     attempt = 0;
-    setTimeout(() => void connect(), 100);
+    void connect(); // supersedes + reconnects with fresh settings
+  } else if (msg.kind === KIND.statusQuery) {
+    // A restarted service worker is asking whether we're connected.
+    reportStatus(peer != null && !stopped);
   }
   return undefined;
 });

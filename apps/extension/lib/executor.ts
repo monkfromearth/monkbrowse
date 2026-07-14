@@ -95,14 +95,24 @@ export async function execWire(
     case "browser_screenshot": {
       const tabId = await resolveTab(payload.tabId as number | undefined);
       const tab = await chrome.tabs.get(tabId);
-      // captureVisibleTab only grabs the active tab — bring the target to front.
+      // captureVisibleTab only grabs the active tab — bring the target to front,
+      // then restore whatever tab the user was actually looking at.
+      let restoreId: number | undefined;
       if (!tab.active) {
+        const [prev] = await chrome.tabs.query({
+          active: true,
+          windowId: tab.windowId,
+        });
+        restoreId = prev?.id ?? undefined;
         await chrome.tabs.update(tabId, { active: true });
         await wait(180);
       }
       const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, {
         format: "png",
       });
+      if (restoreId != null && restoreId !== tabId) {
+        await chrome.tabs.update(restoreId, { active: true }).catch(() => {});
+      }
       return { tabId, data: dataUrl.replace(/^data:image\/png;base64,/, "") };
     }
     case "browser_reload": {
@@ -280,12 +290,16 @@ function waitForLoad(tabId: number, timeoutMs = 15_000): Promise<void> {
     };
     chrome.tabs.onUpdated.addListener(listener);
     const timer = setTimeout(finish, timeoutMs);
-    // In case it's already complete.
-    chrome.tabs.get(tabId).then(
-      (t) => {
-        if (t.status === "complete") finish();
-      },
-      () => finish(),
-    );
+    // Fallback only — don't check immediately, or we'd resolve on the OLD page's
+    // lingering "complete" before the new navigation has started. By the time
+    // this fires the tab is loading the new page (or genuinely done).
+    setTimeout(() => {
+      chrome.tabs.get(tabId).then(
+        (t) => {
+          if (t.status === "complete") finish();
+        },
+        () => finish(),
+      );
+    }, 600);
   });
 }

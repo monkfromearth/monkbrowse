@@ -16,6 +16,25 @@ What's done, what's next, and in what order. Checked = shipped on `main`.
 - [x] Popup v3: search, favicons, Share all, single scroll, a11y
 - [x] npm-publishable server (`npx monkbrowse`, name claimed in manifest, unpublished)
 
+## Code review (round 1) — outcomes
+
+Fixed on `main`:
+- [x] Offscreen reconnect storm (per-socket generation guard; the connect/evict flapping)
+- [x] SW-restart stale `connected` (offscreen re-reports on `status-query`; push gate removed)
+- [x] Screenshot restores the user's focus after capturing a background tab
+- [x] `waitForLoad` no longer resolves on the old page's lingering "complete"
+- [x] `defaultSharedTab` uses the single last-focused tab (not per-window `active`)
+- [x] `list_tabs` no longer corrupts the default-profile choice (`markUsed` moved to real actions)
+- [x] Retry-after-timeout re-checks the peer (no null-deref); duplicate-hello ping-timer leak; ping timeout < interval; ws `error` listener; shares cache survives a storage hiccup
+
+Deferred (need a bigger change / empirical check):
+- [ ] **Main-world injection (H3):** console capture, dialog guards, and `browser_evaluate`
+      run in the isolated world today — so `browser_get_console_logs` misses page logs,
+      dialogs aren't intercepted, and `evaluate`/`wait`-for-text can be CSP-blocked on
+      strict sites (GitHub). Move these to a `world: "MAIN"` injected script + a bridge.
+- [ ] Slot-number policy: reuse-lowest-free vs monotonic (stable-number). Decide, then doc/fix.
+- [ ] Localhost socket has no auth (any local process could drive a shared tab). Add a hello token.
+
 ## Now — finalize & publish
 
 - [ ] Real-Chrome verification checklist: SW suspension survival, injection into

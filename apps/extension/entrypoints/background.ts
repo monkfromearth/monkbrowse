@@ -135,9 +135,19 @@ export default defineBackground(() => {
     return { hello, assignedPort: port };
   }
 
+  // Ask the offscreen doc to re-report status (the socket survives SW suspension,
+  // so after a SW restart `connected` here is stale until we re-sync).
+  function syncStatus(): void {
+    chrome.runtime
+      .sendMessage({ to: TO.offscreen, kind: KIND.statusQuery })
+      .catch(() => {});
+  }
+
   // --- push the SHARED tab list to the offscreen doc (server-facing) ---
+  // No `connected` gate: after a SW restart that flag is stale, and the send is
+  // harmless if the offscreen/socket isn't there (the offscreen forwards to a
+  // possibly-null peer, a no-op).
   async function pushSharedTabs(): Promise<void> {
-    if (!connected) return;
     chrome.runtime
       .sendMessage({
         to: TO.offscreen,
@@ -165,14 +175,15 @@ export default defineBackground(() => {
   });
 
   // --- keepalive: make sure the offscreen doc (and its socket) is alive ---
-  chrome.alarms.create(KEEPALIVE_ALARM, { periodInMinutes: 0.4 });
+  chrome.alarms.create(KEEPALIVE_ALARM, { periodInMinutes: 0.5 });
   chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === KEEPALIVE_ALARM) {
-      void ensureOffscreen();
+      void ensureOffscreen().then(syncStatus);
     }
   });
 
-  chrome.runtime.onStartup.addListener(() => void ensureOffscreen());
-  chrome.runtime.onInstalled.addListener(() => void ensureOffscreen());
-  void ensureOffscreen();
+  const boot = () => void ensureOffscreen().then(syncStatus);
+  chrome.runtime.onStartup.addListener(boot);
+  chrome.runtime.onInstalled.addListener(boot);
+  boot();
 });

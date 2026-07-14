@@ -88,6 +88,7 @@ function handleConnection(
               clearTimeout(helloTimer);
               helloTimer = null;
             }
+            if (pingTimer) clearInterval(pingTimer); // a duplicate hello must not leak
             pingTimer = startPing(peer, () => stopTimers());
           } else {
             // Deliver the rejection ack, then drop the socket.
@@ -111,6 +112,10 @@ function handleConnection(
     { defaultTimeoutMs: mcpConfig.defaultTimeoutMs },
   );
 
+  // An ECONNRESET on a raw ws socket emits 'error'; without a listener Node would
+  // throw. The Peer's close handling does the real teardown.
+  ws.on("error", () => {});
+
   // Drop sockets that never identify themselves.
   helloTimer = setTimeout(() => {
     if (!adopted) {
@@ -126,8 +131,11 @@ function startPing(
   onDead: () => void,
 ): ReturnType<typeof setInterval> {
   let missed = 0;
+  // Timeout well under the interval so a ping always settles before the next one
+  // fires (no overlapping pings -> the FIFO pong matching stays correct).
+  const pingTimeout = Math.max(2_000, Math.floor(mcpConfig.pingIntervalMs / 2));
   const timer = setInterval(() => {
-    peer.ping(mcpConfig.pingIntervalMs).then(
+    peer.ping(pingTimeout).then(
       () => {
         missed = 0;
       },

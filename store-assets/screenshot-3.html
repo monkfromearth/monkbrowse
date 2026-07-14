@@ -1,0 +1,88 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1280px;height:800px;overflow:hidden}
+body{font-family:-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;
+background:radial-gradient(1000px 620px at 88% -12%,rgba(136,178,236,.22),transparent 60%),radial-gradient(880px 620px at -10% 112%,rgba(233,162,148,.20),transparent 55%),#f5f4fb;
+color:#17182b;position:relative}
+.wrap{display:flex;align-items:center;height:100%;padding:0 84px;gap:60px}
+.left{flex:1;max-width:600px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:15px;font-weight:700;color:#4b57c4;margin-bottom:26px}
+h1{font-size:56px;line-height:1.06;letter-spacing:-.03em;font-weight:800;max-width:560px}
+h1 .hl{background:linear-gradient(90deg,#e9a294,#a2abde 60%,#88b2ec);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{margin-top:20px;font-size:21px;line-height:1.5;color:#565a6e;max-width:520px}
+.lead b{color:#17182b;font-weight:650}
+.chips{display:flex;gap:10px;margin-top:30px;flex-wrap:wrap}
+.chip{font-size:14px;font-weight:600;color:#17182b;background:#fff;border:1px solid #e7e6f0;border-radius:10px;padding:9px 15px;display:flex;align-items:center;gap:8px;box-shadow:0 2px 6px rgba(23,24,43,.05)}
+.chip .cd{width:8px;height:8px;border-radius:50%}
+.right{flex:none;display:flex;justify-content:center;align-items:center;width:520px}
+.cardscale{transform:scale(1.18);transform-origin:center}
+
+.card{width:400px;background:#fff;border-radius:20px;box-shadow:0 30px 70px rgba(23,24,43,.22),0 4px 12px rgba(23,24,43,.08);overflow:hidden;font:13px/1.5 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;color:#17182b}
+.ph{display:flex;align-items:center;gap:9px;padding:15px 16px 10px}
+.pbrand{font-size:15px;font-weight:650;letter-spacing:-.01em;flex:1}
+.pstat{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#1a8f3c;font-weight:500}
+.pstat .d{width:8px;height:8px;border-radius:50%;background:#1a8f3c;box-shadow:0 0 0 3px rgba(26,143,60,.15)}
+.ptabs{display:flex;gap:20px;padding:0 16px;border-bottom:1px solid #ececf1}
+.ptab{font-size:13px;font-weight:600;color:#6b7280;padding:9px 1px 10px;position:relative}
+.ptab.on{color:#4b57c4}
+.ptab.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#4b57c4;border-radius:2px 2px 0 0}
+.phd{display:flex;align-items:center;gap:6px;padding:12px 16px 8px}
+.phd .t{font-size:13px;font-weight:650}
+.phd .i{width:15px;height:15px;border-radius:50%;border:1.3px solid #aeb2bd;color:#aeb2bd;display:grid;place-items:center;font-size:10px;font-style:italic;font-weight:700}
+.phd .c{margin-left:auto;font-size:12px;color:#6b7280}
+.psearch{margin:0 16px 8px;display:flex;align-items:center;gap:7px;background:#f6f6fa;border:1px solid #ececf1;border-radius:9px;padding:9px 10px;color:#aeb2bd}
+.psearch svg{flex:none}
+.psearch .ph2{color:#aeb2bd;flex:1}
+.pshareall{padding:0 16px 8px;text-align:right;margin-top:-4px}
+.pshareall span{color:#4b57c4;font-weight:600;font-size:12px}
+.phint{margin:0 16px 10px;font-size:11.5px;color:#aeb2bd}
+.pctx{margin:0 16px 12px;padding:9px 11px;border-radius:9px;background:#eef1fd;color:#17182b;font-size:12px;display:flex;align-items:center;gap:8px}
+.pctx .pulse{width:8px;height:8px;border-radius:50%;background:#1a8f3c;flex:none}
+.pctx b{font-weight:650}
+.plist{padding:2px 8px 12px}
+.pgroup{padding:10px 8px 4px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#aeb2bd}
+.prow{display:grid;grid-template-columns:24px 1fr auto;align-items:center;gap:11px;padding:10px 8px;border-radius:11px}
+.prow.acting{background:#eef1fd;box-shadow:inset 0 0 0 1.5px #4b57c4}
+.fav{width:18px;height:18px;justify-self:center;border-radius:5px;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;overflow:hidden}
+.favimg{width:18px;height:18px}
+.meta{min-width:0}
+.title{font-size:13px;font-weight:450;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub{display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280}
+.livedot{width:6px;height:6px;border-radius:50%;background:#1a8f3c}
+.end{display:flex;align-items:center;gap:7px}
+.num{font:700 11px ui-monospace,SFMono-Regular,Menlo,monospace;color:#3a3f9e;background:#ecedfb;border-radius:6px;padding:2px 5px}
+.sw{position:relative;width:34px;height:20px;border-radius:999px;background:#e3e4e9;flex:none}
+.sw.on{background:linear-gradient(90deg,#e9a294,#a2abde 68%,#88b2ec)}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(20,16,28,.22)}
+.sw.on::after{transform:translateX(14px)}
+</style></head>
+<body><div class="wrap"><div class="left">
+<div class="eyebrow"><svg width="26" height="26" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="mb" x1="14" y1="64" x2="116" y2="64" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#E9A294"/><stop offset="0.42" stop-color="#C2A4CD"/><stop offset="0.72" stop-color="#A2ABDE"/><stop offset="1" stop-color="#88B2EC"/></linearGradient></defs>
+<rect x="54" y="20" width="60" height="46" rx="11" stroke="url(#mb)" stroke-width="8" fill="none" stroke-opacity="0.5"/>
+<rect x="16" y="42" width="72" height="58" rx="14" stroke="url(#mb)" stroke-width="9" fill="none"/>
+<path d="M16 61 H88" stroke="url(#mb)" stroke-width="8" stroke-linecap="round"/>
+<circle cx="30" cy="52" r="3.2" fill="url(#mb)"/><circle cx="42" cy="52" r="3.2" fill="url(#mb)"/><circle cx="54" cy="52" r="3.2" fill="url(#mb)"/></svg>&nbsp;monkbrowse</div>
+<h1>Watch it work, <span class="hl">tab by tab</span>.</h1><p class="lead">A live indicator shows exactly which tab the AI is acting on, right now. No hidden background automation.</p><div class="chips"><span class="chip"><span class="cd" style="background:#1a8f3c"></span>Live activity</span><span class="chip"><span class="cd" style="background:#4b57c4"></span>You stay in control</span></div>
+</div><div class="right"><div class="cardscale"><div class="card">
+<div class="ph"><svg width="26" height="26" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="mb" x1="14" y1="64" x2="116" y2="64" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#E9A294"/><stop offset="0.42" stop-color="#C2A4CD"/><stop offset="0.72" stop-color="#A2ABDE"/><stop offset="1" stop-color="#88B2EC"/></linearGradient></defs>
+<rect x="54" y="20" width="60" height="46" rx="11" stroke="url(#mb)" stroke-width="8" fill="none" stroke-opacity="0.5"/>
+<rect x="16" y="42" width="72" height="58" rx="14" stroke="url(#mb)" stroke-width="9" fill="none"/>
+<path d="M16 61 H88" stroke="url(#mb)" stroke-width="8" stroke-linecap="round"/>
+<circle cx="30" cy="52" r="3.2" fill="url(#mb)"/><circle cx="42" cy="52" r="3.2" fill="url(#mb)"/><circle cx="54" cy="52" r="3.2" fill="url(#mb)"/></svg><span class="pbrand">monkbrowse</span><span class="pstat"><span class="d"></span>Connected</span></div>
+<div class="ptabs"><span class="ptab on">Tabs</span><span class="ptab">Settings</span><span class="ptab">Help</span></div>
+<div class="phd"><span class="t">Tabs the AI can use</span><span class="i">i</span><span class="c">2 of 4 shared</span></div>
+<div class="psearch"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="ph2">Search tabs</span></div><div class="pshareall"><span>Share all</span></div><div class="pctx"><span class="pulse"></span>AI is working on <b>#1</b>&nbsp;·&nbsp;linkedin.com</div>
+<div class="plist"><div class="pgroup">Shared</div><div class="prow acting"><span class="fav" style="background:#0A66C2">in</span>
+<span class="meta"><div class="title">Saved Posts | LinkedIn</div><div class="sub"><span>linkedin.com</span></div></span>
+<span class="end"><span class="num">#1</span><span class="sw on"></span></span></div><div class="prow"><span class="fav" style="background:#0d1117">GH</span>
+<span class="meta"><div class="title">monkfromearth/monkbrowse</div><div class="sub"><span>github.com</span></div></span>
+<span class="end"><span class="num">#2</span><span class="sw on"></span></span></div><div class="pgroup">Other tabs</div><div class="prow"><span class="fav" style="background:#4285F4">D</span>
+<span class="meta"><div class="title">Q3 Roadmap</div><div class="sub"><span>docs.google.com</span><span class="livedot"></span></div></span>
+<span class="end"><span class="sw"></span></span></div><div class="prow"><span class="fav" style="background:#EA4335">M</span>
+<span class="meta"><div class="title">Inbox (12)</div><div class="sub"><span>mail.google.com</span></div></span>
+<span class="end"><span class="sw"></span></span></div></div>
+</div></div></div></div></body></html>

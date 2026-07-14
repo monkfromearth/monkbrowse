@@ -37,21 +37,20 @@ Works with any MCP client: Claude, Cursor, VS Code, Windsurf, Gemini CLI, Codex,
 Full setup guide: https://monkfromearth.github.io/monkbrowse/guide/install
 ```
 
-## 3. Graphic assets
+## 3. Graphic assets — ready in `store-assets/`
 
-| Asset | Spec | Status |
+All generated (branded frames with the real popup design). Regenerate any time with `bash store-assets/render.sh`.
+
+| Asset | Spec | File |
 |---|---|---|
 | Store icon | 128×128 PNG | ✅ ships in the zip (`icon/128.png`) |
-| Screenshots | 1280×800 **or** 640×400 PNG/JPG, 1–5 | ⬜ capture (see below) |
-| Small promo tile | 440×280 PNG/JPG | ⬜ optional but recommended |
+| Screenshot 1 — core value | 1280×800 | ✅ `store-assets/screenshot-1.png` |
+| Screenshot 2 — privacy/control | 1280×800 | ✅ `store-assets/screenshot-2.png` |
+| Screenshot 3 — live activity | 1280×800 | ✅ `store-assets/screenshot-3.png` |
+| Small promo tile | 440×280 | ✅ `store-assets/tile-small.png` |
+| Marquee tile | 1400×560 | ✅ `store-assets/tile-marquee.png` |
 
-**Screenshots to capture** (open the popup on a profile with a few tabs shared):
-
-1. The popup — shared tabs at the top with `#1/#2`, the search bar, "Connected".
-2. The popup mid-action — the "AI is working on #1" strip visible.
-3. A caption card: "Tell your AI: on tab 1, summarize this page." (make in any slide tool at 1280×800).
-
-Tip: 1280×800 looks best. Put each on a clean background with a one-line caption.
+Upload screenshots 1→3 in order (they read as a story: drive shared tabs → you choose per tab → watch it work). The tiles are optional but improve placement.
 
 ## 4. Privacy tab (required — this is where reviews get stuck)
 

@@ -30,6 +30,10 @@
   <a href="https://monkfromearth.github.io/monkbrowse/guide/architecture">Architecture</a>
 </p>
 
+<p align="center">
+  <img src="./store-assets/screenshot-1.png" alt="monkbrowse popup — choose which tabs the AI can use" width="840">
+</p>
+
 ---
 
 > **Live on npm: `npx -y monkbrowse`.** The server publishes to npm; the Chrome extension is loaded unpacked for now (Web Store listing in review). Full docs: **[monkfromearth.github.io/monkbrowse](https://monkfromearth.github.io/monkbrowse/)**.

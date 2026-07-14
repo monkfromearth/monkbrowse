@@ -26,6 +26,10 @@
   <a href="https://github.com/monkfromearth/monkbrowse">GitHub</a>
 </p>
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/monkfromearth/monkbrowse/main/store-assets/screenshot-1.png" alt="monkbrowse popup — choose which tabs the AI can use" width="760">
+</p>
+
 ---
 
 This is the **server** half of monkbrowse. It talks to your AI over MCP (stdio) and drives your real Chrome through the **[monkbrowse Chrome extension](https://github.com/monkfromearth/monkbrowse)** over a local WebSocket. Both halves are required.

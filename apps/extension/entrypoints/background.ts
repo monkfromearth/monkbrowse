@@ -15,6 +15,9 @@ export default defineBackground(() => {
   let pushTimer: ReturnType<typeof setTimeout> | null = null;
 
   // --- offscreen document (owns the WebSocket, survives SW suspension) ---
+  // Several startup paths call this at once (onStartup/onInstalled/alarm/init);
+  // dedupe so we never race two createDocument() calls (Chrome allows only one).
+  let creatingOffscreen: Promise<void> | null = null;
   async function ensureOffscreen(): Promise<void> {
     const existing = await chrome.runtime.getContexts({
       contextTypes: [chrome.runtime.ContextType.OFFSCREEN_DOCUMENT],
@@ -22,11 +25,24 @@ export default defineBackground(() => {
     if (existing.length > 0) {
       return;
     }
-    await chrome.offscreen.createDocument({
-      url: OFFSCREEN_URL,
-      reasons: [chrome.offscreen.Reason.WORKERS],
-      justification: "Persistent WebSocket connection to the Monkbrowse server",
-    });
+    if (creatingOffscreen) {
+      return creatingOffscreen;
+    }
+    creatingOffscreen = chrome.offscreen
+      .createDocument({
+        url: OFFSCREEN_URL,
+        reasons: [chrome.offscreen.Reason.WORKERS],
+        justification:
+          "Persistent WebSocket connection to the Monkbrowse server",
+      })
+      .catch((err: unknown) => {
+        // A concurrent caller won the race — that's fine.
+        if (!/single offscreen/i.test(String(err))) throw err;
+      })
+      .finally(() => {
+        creatingOffscreen = null;
+      });
+    return creatingOffscreen;
   }
 
   function setBadge(isConnected: boolean): void {

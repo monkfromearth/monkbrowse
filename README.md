@@ -22,17 +22,17 @@
 </p>
 
 <p align="center">
+  <a href="https://monkfromearth.github.io/monkbrowse/"><strong>📖 Docs&nbsp;site</strong></a> ·
   <a href="#install">Install</a> ·
   <a href="#quickstart">Quickstart</a> ·
-  <a href="#extending-monkbrowse">Extend</a> ·
+  <a href="https://monkfromearth.github.io/monkbrowse/guide/use-cases">Use cases</a> ·
   <a href="#the-tools">Tools</a> ·
-  <a href="./docs/GETTING-STARTED.md">Getting started</a> ·
-  <a href="./docs/ARCHITECTURE.md">Architecture</a>
+  <a href="https://monkfromearth.github.io/monkbrowse/guide/architecture">Architecture</a>
 </p>
 
 ---
 
-> **Status: pre-release, private repo, not on npm yet.** You build it locally and load the extension unpacked. Everything below reflects the current local-build flow. Anything that only works "once published" is labelled as such.
+> **Status: pre-release, not on npm yet.** You build it locally and load the extension unpacked. Everything below reflects the current local-build flow. Anything that only works "once published" is labelled as such. Full docs live at **[monkfromearth.github.io/monkbrowse](https://monkfromearth.github.io/monkbrowse/)**.
 
 ## What it is
 

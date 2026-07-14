@@ -13,11 +13,16 @@ const tabCount = document.getElementById("tabCount")!;
 const connSummary = document.getElementById("connSummary")!;
 
 async function bg(kind: string, extra: Record<string, unknown> = {}): Promise<unknown> {
-  const res = (await chrome.runtime.sendMessage({ to: TO.bg, kind, ...extra })) as
-    | { ok: true; result: unknown }
-    | { ok: false; error: string }
-    | undefined;
-  return res?.ok ? res.result : undefined;
+  try {
+    const res = (await chrome.runtime.sendMessage({ to: TO.bg, kind, ...extra })) as
+      | { ok: true; result: unknown }
+      | { ok: false; error: string }
+      | undefined;
+    return res?.ok ? res.result : undefined;
+  } catch {
+    // service worker briefly unavailable; treat as no result
+    return undefined;
+  }
 }
 
 function displayLabel(port: number, label: string): string {

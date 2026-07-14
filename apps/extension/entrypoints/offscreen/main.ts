@@ -28,11 +28,11 @@ async function bgSend(kind: string, extra: Record<string, unknown> = {}) {
 }
 
 function reportStatus(connected: boolean): void {
-  void chrome.runtime.sendMessage({
-    to: TO.bg,
-    kind: KIND.socketStatus,
-    connected,
-  });
+  // Fire-and-forget. If the service worker is momentarily asleep/restarting the
+  // send rejects with "Receiving end does not exist" — harmless; swallow it.
+  chrome.runtime
+    .sendMessage({ to: TO.bg, kind: KIND.socketStatus, connected })
+    .catch(() => {});
 }
 
 function browserSocket(socket: WebSocket): PeerSocket {

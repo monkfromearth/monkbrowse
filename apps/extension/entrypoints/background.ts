@@ -104,7 +104,9 @@ export default defineBackground(() => {
       }
       case KIND.settingsChanged:
         // Tell the offscreen doc to reconnect with the new port/label.
-        chrome.runtime.sendMessage({ to: TO.offscreen, kind: KIND.reconnect });
+        chrome.runtime
+          .sendMessage({ to: TO.offscreen, kind: KIND.reconnect })
+          .catch(() => {});
         return { ok: true };
       default:
         throw new Error(`Unknown bg message "${msg.kind}"`);
@@ -129,11 +131,13 @@ export default defineBackground(() => {
   // --- push the SHARED tab list to the offscreen doc (server-facing) ---
   async function pushSharedTabs(): Promise<void> {
     if (!connected) return;
-    chrome.runtime.sendMessage({
-      to: TO.offscreen,
-      kind: KIND.tabsPush,
-      tabs: await enumerateSharedTabs(),
-    });
+    chrome.runtime
+      .sendMessage({
+        to: TO.offscreen,
+        kind: KIND.tabsPush,
+        tabs: await enumerateSharedTabs(),
+      })
+      .catch(() => {});
   }
 
   function scheduleTabsPush(): void {

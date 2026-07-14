@@ -22,6 +22,7 @@ const connSummary = document.getElementById("connSummary")!;
 const ctx = document.getElementById("ctx")!;
 
 const TIP_KEY = "tipSeenShareNumber";
+const THEME_KEY = "theme";
 let allTabs: PopupTab[] = [];
 let connected = false;
 let activeIds: number[] = [];
@@ -365,6 +366,22 @@ tabButtons.forEach((b, i) => {
   });
 });
 
+// --- theme: System / Light / Dark (Settings) ---
+const segBtns = [...document.querySelectorAll<HTMLElement>(".seg-btn")];
+function applyTheme(theme: string): void {
+  const t = theme === "light" || theme === "dark" ? theme : "system";
+  if (t === "system") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", t);
+  for (const b of segBtns) b.setAttribute("aria-pressed", String(b.dataset.theme === t));
+}
+segBtns.forEach((b) => {
+  b.addEventListener("click", () => {
+    const t = b.dataset.theme ?? "system";
+    void chrome.storage.local.set({ [THEME_KEY]: t });
+    applyTheme(t);
+  });
+});
+
 // Version in the Help/About line.
 const ver = document.getElementById("ver");
 if (ver) ver.textContent = `v${chrome.runtime.getManifest().version}`;
@@ -436,11 +453,14 @@ shareAllBtn.addEventListener("click", async () => {
 });
 
 async function load(): Promise<void> {
-  const { port, label } = await getIdentity();
+  const [{ port, label }, stored] = await Promise.all([
+    getIdentity(),
+    chrome.storage.local.get([TIP_KEY, THEME_KEY]),
+  ]);
+  applyTheme(String(stored[THEME_KEY] ?? "system")); // apply theme ASAP
+  tipSeen = Boolean(stored[TIP_KEY]);
   portInput.value = String(port);
   labelInput.value = label;
-  const stored = await chrome.storage.local.get(TIP_KEY);
-  tipSeen = Boolean(stored[TIP_KEY]);
   await Promise.all([refreshStatus(), loadTabs()]);
   search.focus(); // land in the search box so you can filter immediately
   void pollActivity();

@@ -17,6 +17,9 @@ export default defineConfig({
   ],
   themeConfig: {
     logo: "/logo.svg",
+    // Show H2 + H3 in the right-hand "On this page" outline, so per-app anchors
+    // (Claude Code, Gemini CLI, …) are one click away on every page.
+    outline: { level: [2, 3], label: "On this page" },
     nav: [
       { text: "Install", link: "/guide/install" },
       { text: "Use cases", link: "/guide/use-cases" },

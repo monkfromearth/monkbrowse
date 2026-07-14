@@ -40,11 +40,14 @@ Deferred (need a bigger change / empirical check):
 - [ ] Real-Chrome verification checklist: SW suspension survival, injection into
       pre-open tabs, multi-profile (9222 + 9223), complex-SPA snapshot quality
 - [ ] Snapshot tuning on heavy SPAs (LinkedIn-class pages under-report)
-- [ ] `npm publish` (server) — `cd apps/server && bun run build && bun publish`
+- [x] Install page + one-click deep links (Cursor/VS Code) and copy commands for
+      every client; README leads with `npx monkbrowse`. `catalog:` resolves clean
+      via `bun publish` (verified with `bun pm pack`).
+- [ ] `npm publish` (server) — needs `npm login` first, then `cd apps/server && bun publish`
 - [ ] Chrome Web Store submission (zip exists: `apps/extension/dist/monkbrowse-*.zip`)
-      + store listing copy/screenshots
+      + store listing copy/screenshots; then swap the "coming soon" store link
 - [ ] CI: GitHub Actions running `typecheck · test · build · lint` on push
-- [ ] Flip repo public; enable the docs site hosting
+- [x] Flip repo public; docs site live at monkfromearth.github.io/monkbrowse/ (Pages via Actions)
 
 ## Next — UX quick wins (popup & feedback)
 

@@ -16,7 +16,7 @@ export default defineConfig({
   themeConfig: {
     logo: "/logo.svg",
     nav: [
-      { text: "Get started", link: "/guide/getting-started" },
+      { text: "Install", link: "/guide/install" },
       { text: "Use cases", link: "/guide/use-cases" },
       { text: "Tools", link: "/guide/tools" },
       { text: "Architecture", link: "/guide/architecture" },
@@ -25,6 +25,7 @@ export default defineConfig({
       {
         text: "Guide",
         items: [
+          { text: "Install", link: "/guide/install" },
           { text: "Get started", link: "/guide/getting-started" },
           { text: "Use cases", link: "/guide/use-cases" },
           { text: "Tool reference", link: "/guide/tools" },

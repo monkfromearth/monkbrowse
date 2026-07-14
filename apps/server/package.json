@@ -40,7 +40,7 @@
     "build": "tsup && shx chmod +x dist/*.js",
     "typecheck": "tsc --noEmit",
     "inspector": "bunx @modelcontextprotocol/inspector bun dist/index.js",
-    "prepublishOnly": "tsup && shx chmod +x dist/*.js"
+    "prepublishOnly": "bunx tsup && bunx shx chmod +x dist/*.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.8.0",

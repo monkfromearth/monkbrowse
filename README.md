@@ -64,169 +64,44 @@ The trade-off: it drives a browser you can see, one action at a time per tab (li
 
 ## Install
 
-Two halves, both required: the **server** (your AI app launches it) and the **extension** (loaded in each Chrome profile).
+Two small steps. No path juggling, no build. The server runs from npm with `npx`; your AI app launches it for you. Full guide with every client: **[Install docs](https://monkfromearth.github.io/monkbrowse/guide/install)**.
 
-### Step 1: Build
+### Step 1: Add the server to your AI app
 
-```bash
-bun install
-bun run build
-```
+**One-click:**
 
-This produces:
+<a href="cursor://anysphere.cursor-deeplink/mcp/install?name=monkbrowse&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIm1vbmticm93c2UiXX0="><img alt="Add to Cursor" src="https://img.shields.io/badge/Add%20to-Cursor-0b0b0b?style=for-the-badge&logo=cursor&logoColor=white" height="30"></a>
+&nbsp;
+<a href="vscode:mcp/install?%7B%22name%22%3A%22monkbrowse%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22monkbrowse%22%5D%7D"><img alt="Install in VS Code" src="https://img.shields.io/badge/Install%20in-VS%20Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" height="30"></a>
 
-- **Server:** `apps/server/dist/index.js` (a Node-compatible bin named `monkbrowse`)
-- **Extension:** `apps/extension/dist/chrome-mv3/` (unpacked, ready to load)
-
-### Step 2: Point your AI app at the server
-
-Every MCP client uses the same server config. Replace the path with your absolute path to `apps/server/dist/index.js` (run `echo "$(pwd)/apps/server/dist/index.js"` from the repo root to get it):
-
-```jsonc
-{
-  "command": "bun",
-  "args": ["/ABSOLUTE/PATH/TO/browsermcp/apps/server/dist/index.js"]
-}
-```
-
-Where that snippet goes differs per app. Pick yours below.
-
-<details open>
-<summary><strong>Claude Code</strong></summary>
-
-One command from anywhere (user scope, replace the path):
+**Or one command:**
 
 ```bash
-claude mcp add monkbrowse --scope user -- bun /ABSOLUTE/PATH/TO/browsermcp/apps/server/dist/index.js
+# Claude Code
+claude mcp add monkbrowse -- npx -y monkbrowse
+
+# VS Code (also has the button above)
+code --add-mcp '{"name":"monkbrowse","command":"npx","args":["-y","monkbrowse"]}'
 ```
 
-Or add it by hand to a project's `.mcp.json` (or `~/.claude.json` for user scope):
+**Windsurf / Claude Desktop / anything else** — same server config everywhere:
 
 ```jsonc
-{
-  "mcpServers": {
-    "monkbrowse": {
-      "command": "bun",
-      "args": ["/ABSOLUTE/PATH/TO/browsermcp/apps/server/dist/index.js"]
-    }
-  }
-}
+{ "mcpServers": { "monkbrowse": { "command": "npx", "args": ["-y", "monkbrowse"] } } }
 ```
 
-Verify with `claude mcp list`.
-</details>
+Prefer `bunx monkbrowse` or `pnpm dlx monkbrowse`? Both work. See the [Install docs](https://monkfromearth.github.io/monkbrowse/guide/install) for the exact spot each client keeps this.
 
-<details>
-<summary><strong>Claude Desktop</strong></summary>
+### Step 2: Install the Chrome extension
 
-Edit the config file (create it if missing), then restart Claude Desktop:
+monkbrowse drives your real Chrome, so it needs a small extension:
 
-- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **Chrome Web Store** (coming soon): one click, auto-updates.
+- **Now:** download the latest `monkbrowse-*.zip` from [releases](https://github.com/monkfromearth/monkbrowse/releases), unzip, then in `chrome://extensions` turn on **Developer mode** and **Load unpacked** the folder.
 
-```jsonc
-{
-  "mcpServers": {
-    "monkbrowse": {
-      "command": "bun",
-      "args": ["/ABSOLUTE/PATH/TO/browsermcp/apps/server/dist/index.js"]
-    }
-  }
-}
-```
+Open the popup, toggle a tab **on** (it gets a number like `#1`), and tell the AI *"on tab 1, do X."* The AI only ever sees tabs you shared. For multiple Chrome profiles, give each its own port in the popup ([why](https://monkfromearth.github.io/monkbrowse/guide/connection)).
 
-You can also open **Settings → Developer → Edit Config** to reach the same file.
-</details>
-
-<details>
-<summary><strong>Cursor</strong></summary>
-
-Add to `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` in a project:
-
-```jsonc
-{
-  "mcpServers": {
-    "monkbrowse": {
-      "command": "bun",
-      "args": ["/ABSOLUTE/PATH/TO/browsermcp/apps/server/dist/index.js"]
-    }
-  }
-}
-```
-
-Then enable it under **Settings → MCP**. (A one-click `cursor://` deeplink is listed under [Once published](#once-published).)
-</details>
-
-<details>
-<summary><strong>VS Code (Copilot agent mode)</strong></summary>
-
-VS Code's native MCP support uses a `servers` key (note: not `mcpServers`) and a `type`. Add `.vscode/mcp.json` in your workspace:
-
-```jsonc
-{
-  "servers": {
-    "monkbrowse": {
-      "type": "stdio",
-      "command": "bun",
-      "args": ["/ABSOLUTE/PATH/TO/browsermcp/apps/server/dist/index.js"]
-    }
-  }
-}
-```
-
-Or run **MCP: Add Server** from the Command Palette and choose "stdio". For user-level config it lives under the `"mcp": { "servers": { … } }` key in `settings.json`.
-
-**Continue extension** instead? Continue uses `mcpServers` in `~/.continue/config.yaml` (or `config.json`) with the same `command` / `args`.
-</details>
-
-<details>
-<summary><strong>Windsurf</strong></summary>
-
-Add to `~/.codeium/windsurf/mcp_config.json`:
-
-```jsonc
-{
-  "mcpServers": {
-    "monkbrowse": {
-      "command": "bun",
-      "args": ["/ABSOLUTE/PATH/TO/browsermcp/apps/server/dist/index.js"]
-    }
-  }
-}
-```
-
-Or use **Windsurf Settings → Cascade → MCP Servers → Add**. Restart Cascade after saving.
-</details>
-
-### Step 3: Load the extension in each Chrome profile
-
-Chrome isolates every profile, so the extension is loaded per profile.
-
-1. Open `chrome://extensions`.
-2. Turn on **Developer mode** (top right).
-3. **Load unpacked** and select `apps/extension/dist/chrome-mv3`.
-4. Click the **monkbrowse** toolbar icon to open the popup.
-5. Set a **Port** (e.g. `9222`) and a **Label** (e.g. `Work`), then **Connect**.
-
-For a second profile, load the same unpacked build there and give it a **different port** (`9223`, …). The one server sees them all; a second profile never evicts the first.
-
-> Full walkthrough, including multi-profile: **[docs/GETTING-STARTED.md](docs/GETTING-STARTED.md)**.
-
-### Once published
-
-When monkbrowse lands on npm, the server config collapses to a one-liner (no path, no build):
-
-```jsonc
-{ "command": "npx", "args": ["monkbrowse"] }
-```
-
-And Cursor gets a one-click deeplink:
-
-```
-cursor://anysphere.cursor-deeplink/mcp/install?name=monkbrowse&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyJtb25rYnJvd3NlIl19
-```
-
-These are **not** live yet: the repo is private and unpublished. Use the local `bun` config above for now.
+> **Status:** publishing to npm now. Until it lands, the one-click configs above install once the package is live; you can also [build from source](#build-from-source) today.
 
 ## Quickstart
 
@@ -299,10 +174,20 @@ packages/utils     shared helpers
 assets/            brand: logo, wordmark, lockup, icon
 ```
 
+<a id="build-from-source"></a>
+
 ## Develop
+
+Building from source (for contributors, or to run before the npm publish lands):
 
 ```bash
 bun install
+bun run build              # server → apps/server/dist/index.js ; extension → apps/extension/dist/chrome-mv3
+```
+
+Then point your client at `bun /ABSOLUTE/PATH/apps/server/dist/index.js` and load `apps/extension/dist/chrome-mv3` unpacked. Full dev commands:
+
+```bash
 bun run typecheck          # turbo, all packages + apps (also the isomorphism guard)
 bun run test               # bun test, unit + server integration (no browser needed)
 bun run build              # server → apps/server/dist ; extension → apps/extension/dist/chrome-mv3

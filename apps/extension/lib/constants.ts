@@ -21,6 +21,7 @@ export const KIND = {
   getState: "get-state", // UI -> bg: current connection state
   listTabs: "list-tabs", // UI -> bg: this profile's tabs (all, with shared flag)
   toggleShare: "toggle-share", // UI -> bg: share/unshare a tab with the AI
+  shareAll: "share-all", // UI -> bg: share/unshare every open tab at once
   settingsChanged: "settings-changed", // UI -> bg: options saved
 } as const;
 

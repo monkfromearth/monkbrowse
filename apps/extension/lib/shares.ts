@@ -58,6 +58,23 @@ export async function sharedSet(): Promise<Set<number>> {
   return new Set(shared!);
 }
 
+/** Share or unshare many tabs at once. */
+export async function setManyShared(
+  tabIds: number[],
+  on: boolean,
+): Promise<void> {
+  await ensure();
+  for (const id of tabIds) {
+    if (on) {
+      shared!.add(id);
+    } else {
+      shared!.delete(id);
+      delete slots![id];
+    }
+  }
+  await persist();
+}
+
 /**
  * Reconcile shares + slots against the currently-open tabs, assigning the
  * lowest-free number to any shared tab that lacks one. Returns tabId -> slot

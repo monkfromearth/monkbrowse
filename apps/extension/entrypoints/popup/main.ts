@@ -6,11 +6,16 @@ const portInput = document.getElementById("port") as HTMLInputElement;
 const labelInput = document.getElementById("label") as HTMLInputElement;
 const stat = document.getElementById("stat")!;
 const statText = document.getElementById("statText")!;
+const bar = document.getElementById("bar")!;
+const search = document.getElementById("search") as HTMLInputElement;
+const shareAllBtn = document.getElementById("shareAll") as HTMLButtonElement;
 const list = document.getElementById("list")!;
 const count = document.getElementById("count")!;
 const hint = document.getElementById("hint")!;
 const saved = document.getElementById("saved")!;
 const connSummary = document.getElementById("connSummary")!;
+
+let allTabs: PopupTab[] = [];
 
 async function bg(kind: string, extra: Record<string, unknown> = {}): Promise<unknown> {
   try {
@@ -57,15 +62,23 @@ function tabRow(t: PopupTab): HTMLButtonElement {
     `${t.shared ? "Shared" : "Not shared"}: ${t.title || hostOf(t.url)}`,
   );
 
-  const num = document.createElement("span");
-  num.className = `num${t.shared ? "" : " off"}`;
-  num.textContent = t.shared && t.slot != null ? `#${t.slot}` : "·";
+  const fav = document.createElement("img");
+  fav.className = "fav";
+  fav.alt = "";
+  fav.src = chrome.runtime.getURL(
+    `/_favicon/?pageUrl=${encodeURIComponent(t.url)}&size=32`,
+  );
+  fav.addEventListener("error", () => {
+    fav.removeAttribute("src");
+    fav.classList.add("blank");
+  });
 
   const meta = document.createElement("span");
   meta.className = "meta";
   const title = document.createElement("div");
   title.className = "title";
   title.textContent = t.title || "(untitled)"; // textContent: page titles are untrusted
+  title.title = t.title || ""; // full title on hover
   const sub = document.createElement("div");
   sub.className = "sub";
   const host = document.createElement("span");
@@ -80,42 +93,85 @@ function tabRow(t: PopupTab): HTMLButtonElement {
   }
   meta.append(title, sub);
 
+  const end = document.createElement("span");
+  end.className = "end";
+  if (t.shared && t.slot != null) {
+    const num = document.createElement("span");
+    num.className = "num";
+    num.textContent = `#${t.slot}`;
+    end.append(num);
+  }
   const sw = document.createElement("span");
   sw.className = "sw";
   sw.setAttribute("aria-hidden", "true");
+  end.append(sw);
 
-  row.append(num, meta, sw);
+  row.append(fav, meta, end);
   row.addEventListener("click", async () => {
-    const next = !(row.getAttribute("aria-pressed") === "true");
-    row.setAttribute("aria-pressed", String(next)); // optimistic
+    const next = row.getAttribute("aria-pressed") !== "true";
     const res = (await bg(KIND.toggleShare, { tabId: t.tabId, shared: next })) as
       | { tabs: PopupTab[] }
       | undefined;
-    if (res) renderTabs(res.tabs);
+    if (res) setTabs(res.tabs);
   });
   return row;
 }
 
-function renderTabs(tabs: PopupTab[]): void {
-  list.replaceChildren();
-  const shared = tabs.filter((t) => t.shared).length;
-  count.textContent = tabs.length ? `${shared} of ${tabs.length} shared` : "";
-  hint.hidden = !(tabs.length > 0 && shared === 0);
+function render(): void {
+  const term = search.value.trim().toLowerCase();
+  const shared = allTabs.filter((t) => t.shared).length;
+  count.textContent = allTabs.length
+    ? `${shared} of ${allTabs.length} shared`
+    : "";
+  bar.hidden = allTabs.length === 0;
+  hint.hidden = !(allTabs.length > 0 && shared === 0 && !term);
+  shareAllBtn.textContent = shared < allTabs.length ? "Share all" : "Clear";
 
-  if (!tabs.length) {
+  const shown = term
+    ? allTabs.filter(
+        (t) =>
+          t.title.toLowerCase().includes(term) ||
+          hostOf(t.url).toLowerCase().includes(term),
+      )
+    : allTabs;
+
+  list.replaceChildren();
+  if (!allTabs.length) {
     const empty = document.createElement("div");
-    empty.className = "empty";
+    empty.className = "noresult";
     empty.textContent = "No open tabs.";
     list.append(empty);
     return;
   }
-  for (const t of tabs) list.append(tabRow(t));
+  if (!shown.length) {
+    const none = document.createElement("div");
+    none.className = "noresult";
+    none.textContent = "No tabs match your search.";
+    list.append(none);
+    return;
+  }
+  for (const t of shown) list.append(tabRow(t));
+}
+
+function setTabs(tabs: PopupTab[]): void {
+  allTabs = tabs;
+  render();
 }
 
 async function loadTabs(): Promise<void> {
   const res = (await bg(KIND.listTabs)) as { tabs: PopupTab[] } | undefined;
-  renderTabs(res?.tabs ?? []);
+  setTabs(res?.tabs ?? []);
 }
+
+search.addEventListener("input", render);
+
+shareAllBtn.addEventListener("click", async () => {
+  const shareAll = allTabs.filter((t) => t.shared).length < allTabs.length;
+  const res = (await bg(KIND.shareAll, { shared: shareAll })) as
+    | { tabs: PopupTab[] }
+    | undefined;
+  if (res) setTabs(res.tabs);
+});
 
 async function load(): Promise<void> {
   const { port, label } = await getIdentity();

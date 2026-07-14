@@ -21,15 +21,19 @@
         --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
       }
       * { box-sizing: border-box; }
-      html, body { margin: 0; background: #fff; }
+      html, body { margin: 0; background: #fff; overflow: hidden; }
       body {
         width: 380px;
+        max-height: 590px;
+        display: flex;
+        flex-direction: column;
         font: 13px/1.5 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
         color: var(--text);
         -webkit-font-smoothing: antialiased;
       }
+      header, .head, .bar, .hint, details.conn { flex: none; }
 
-      header { display: flex; align-items: center; gap: 9px; padding: 15px 16px 12px; }
+      header { display: flex; align-items: center; gap: 9px; padding: 15px 16px 10px; }
       header img { width: 22px; height: 22px; }
       .brand { font-size: 15px; font-weight: 650; letter-spacing: -0.01em; flex: 1; }
       .stat { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
@@ -37,27 +41,38 @@
       .stat.live { color: var(--green); }
       .stat.live .dot { background: var(--green); box-shadow: 0 0 0 3px rgba(26,143,60,0.14); }
 
-      .head { display: flex; align-items: baseline; justify-content: space-between; padding: 4px 16px 6px; }
+      .head { display: flex; align-items: baseline; justify-content: space-between; padding: 2px 16px 8px; }
       .head .t { font-size: 13px; font-weight: 650; }
       .head .c { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-      .hint { margin: 0 16px 6px; font-size: 12px; color: var(--muted); }
 
-      .list { max-height: 460px; overflow-y: auto; padding: 2px 8px 6px; }
+      .bar { display: flex; align-items: center; gap: 8px; padding: 0 16px 8px; }
+      .search { flex: 1; display: flex; align-items: center; gap: 7px; background: var(--hover); border: 1px solid var(--border); border-radius: 9px; padding: 7px 9px; }
+      .search svg { flex: none; color: var(--faint); }
+      .search input { border: 0; background: transparent; outline: none; font: inherit; color: var(--text); width: 100%; }
+      .search:focus-within { border-color: var(--accent); background: #fff; }
+      .linkbtn { flex: none; border: 0; background: transparent; color: var(--accent); font: inherit; font-weight: 600; font-size: 12px; cursor: pointer; padding: 4px 2px; border-radius: 6px; }
+      .linkbtn:hover { text-decoration: underline; }
+      .linkbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+      .hint { margin: 0 16px 8px; font-size: 12px; color: var(--muted); }
+
+      .list { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0 8px 6px; }
       .list::-webkit-scrollbar { width: 8px; }
       .list::-webkit-scrollbar-thumb { background: #e2e2e8; border-radius: 8px; }
+      .noresult { color: var(--muted); font-size: 13px; padding: 16px; text-align: center; }
 
       .row {
-        display: grid; grid-template-columns: 32px 1fr 40px; align-items: center; gap: 11px;
+        display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 11px;
         width: 100%; text-align: left; border: 0; background: transparent; color: inherit;
-        padding: 9px 8px; border-radius: 11px; cursor: pointer; font: inherit;
+        padding: 8px; border-radius: 11px; cursor: pointer; font: inherit;
         transition: background 0.15s ease;
       }
       .row:hover { background: var(--hover); }
       .row.active { background: var(--active); }
       .row:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-      .num { justify-self: center; font: 700 12px var(--mono); color: var(--chip-fg); background: var(--chip-bg); border-radius: 7px; padding: 3px 6px; min-width: 26px; text-align: center; }
-      .num.off { background: transparent; color: var(--faint); font-weight: 400; }
+      .fav { width: 18px; height: 18px; justify-self: center; border-radius: 4px; object-fit: contain; }
+      .fav.blank { background: #eceef3; }
 
       .meta { min-width: 0; }
       .title { font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -65,12 +80,12 @@
       .host { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .live-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 
-      .sw { justify-self: end; position: relative; width: 38px; height: 22px; border-radius: 999px; background: #d6d7de; flex: none; transition: background 0.18s ease; }
+      .end { display: flex; align-items: center; gap: 9px; }
+      .num { font: 700 11px var(--mono); color: var(--chip-fg); background: var(--chip-bg); border-radius: 6px; padding: 2px 5px; }
+      .sw { position: relative; width: 38px; height: 22px; border-radius: 999px; background: #d6d7de; flex: none; transition: background 0.18s ease; }
       .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(20,16,28,0.28); transition: transform 0.18s ease; }
       .row[aria-pressed="true"] .sw { background: var(--grad); }
       .row[aria-pressed="true"] .sw::after { transform: translateX(16px); }
-
-      .empty { color: var(--muted); font-size: 13px; padding: 18px 16px; text-align: center; }
 
       details.conn { border-top: 1px solid var(--border); }
       details.conn > summary { list-style: none; cursor: pointer; padding: 11px 16px; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 7px; }
@@ -109,6 +124,15 @@
       <span class="t">Tabs the AI can use</span>
       <span class="c" id="count"></span>
     </div>
+
+    <div class="bar" id="bar" hidden>
+      <span class="search">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input id="search" type="text" placeholder="Search tabs" aria-label="Search tabs" />
+      </span>
+      <button id="shareAll" class="linkbtn" type="button"></button>
+    </div>
+
     <p class="hint" id="hint" hidden>Flip a tab on to let the AI use it.</p>
 
     <div id="list" class="list" role="list"></div>

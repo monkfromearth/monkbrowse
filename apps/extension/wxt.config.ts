@@ -18,6 +18,7 @@ export default defineConfig({
       "offscreen",
       "alarms",
       "activeTab",
+      "favicon",
     ],
     host_permissions: ["<all_urls>"],
     action: {

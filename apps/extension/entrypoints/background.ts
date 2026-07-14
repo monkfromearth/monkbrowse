@@ -5,7 +5,7 @@ import type { Hello } from "@monkbrowse/protocol";
 import { KEEPALIVE_ALARM, KIND, OFFSCREEN_URL, TO } from "../lib/constants";
 import { execWire } from "../lib/executor";
 import { getIdentity } from "../lib/identity";
-import { setShared } from "../lib/shares";
+import { setManyShared, setShared } from "../lib/shares";
 import { enumeratePopupTabs, enumerateSharedTabs } from "../lib/tabs";
 
 export default defineBackground(() => {
@@ -99,6 +99,13 @@ export default defineBackground(() => {
         return { tabs: await enumeratePopupTabs() };
       case KIND.toggleShare: {
         await setShared(Number(msg.tabId), Boolean(msg.shared));
+        await pushSharedTabs();
+        return { tabs: await enumeratePopupTabs() };
+      }
+      case KIND.shareAll: {
+        const tabs = await chrome.tabs.query({});
+        const ids = tabs.map((t) => t.id).filter((id): id is number => id != null);
+        await setManyShared(ids, Boolean(msg.shared));
         await pushSharedTabs();
         return { tabs: await enumeratePopupTabs() };
       }

@@ -42,6 +42,9 @@ console.log(
 console.log("  1. Load the extension in Chrome (chrome://extensions).");
 console.log("  2. Open its popup, set a Port in range, click Connect.");
 console.log("  3. Watch below. Ctrl-C to stop.");
+if (PROBE) {
+  console.log("  (probe mode: will read each profile's active shared tab)");
+}
 console.log(`${line}\n`);
 
 let signature = "";

@@ -72,7 +72,7 @@
       .row:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
       .fav { width: 18px; height: 18px; justify-self: center; border-radius: 4px; object-fit: contain; }
-      .fav.blank { background: #eceef3; }
+      .fav.blank { padding: 1px; color: var(--faint); }
 
       .meta { min-width: 0; }
       .title { font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -80,7 +80,14 @@
       .host { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .live-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 
-      .end { display: flex; align-items: center; gap: 9px; }
+      .group { padding: 12px 8px 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint); }
+      .group:first-child { padding-top: 4px; }
+
+      .end { display: flex; align-items: center; gap: 7px; }
+      .go { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); cursor: pointer; opacity: 0; transition: opacity 0.12s ease, background 0.12s ease; }
+      .row:hover .go, .row:focus-within .go { opacity: 1; }
+      .go:hover { background: var(--active); color: var(--accent); }
+      .go:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 1px; }
       .num { font: 700 11px var(--mono); color: var(--chip-fg); background: var(--chip-bg); border-radius: 6px; padding: 2px 5px; }
       .sw { position: relative; width: 38px; height: 22px; border-radius: 999px; background: #d6d7de; flex: none; transition: background 0.18s ease; }
       .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(20,16,28,0.28); transition: transform 0.18s ease; }

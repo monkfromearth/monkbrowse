@@ -23,6 +23,7 @@ export const KIND = {
   listTabs: "list-tabs", // UI -> bg: this profile's tabs (all, with shared flag)
   toggleShare: "toggle-share", // UI -> bg: share/unshare a tab with the AI
   shareAll: "share-all", // UI -> bg: share/unshare every open tab at once
+  activateTab: "activate-tab", // UI -> bg: focus a tab in Chrome (jump to it)
   settingsChanged: "settings-changed", // UI -> bg: options saved
 } as const;
 

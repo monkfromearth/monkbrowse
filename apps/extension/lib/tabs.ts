@@ -40,6 +40,7 @@ export interface PopupTab {
   slot: number | null;
   title: string;
   url: string;
+  favIconUrl: string;
   active: boolean;
   shared: boolean;
 }
@@ -54,6 +55,7 @@ export async function enumeratePopupTabs(): Promise<PopupTab[]> {
     slot: slots.get(t.id as number) ?? null,
     title: t.title ?? "",
     url: t.url ?? "",
+    favIconUrl: t.favIconUrl ?? "",
     active: t.id === focused,
     shared: shared.has(t.id as number),
   }));

@@ -45,9 +45,15 @@ export default defineBackground(() => {
     return creatingOffscreen;
   }
 
-  function setBadge(isConnected: boolean): void {
-    chrome.action.setBadgeText({ text: isConnected ? "on" : "" });
-    chrome.action.setBadgeBackgroundColor({ color: "#16a34a" });
+  // Badge shows the count of tabs the AI can use (the number that matters),
+  // green while connected, grey when offline. Empty when nothing is shared.
+  let sharedCount = 0;
+  function paintBadge(): void {
+    chrome.action.setBadgeText({ text: sharedCount > 0 ? String(sharedCount) : "" });
+    chrome.action.setBadgeBackgroundColor({
+      color: connected ? "#16a34a" : "#9ca3af",
+    });
+    chrome.action.setBadgeTextColor?.({ color: "#ffffff" });
   }
 
   // --- messages from the offscreen doc and the popup/options UI ---
@@ -87,7 +93,7 @@ export default defineBackground(() => {
       }
       case KIND.socketStatus:
         connected = Boolean(msg.connected);
-        setBadge(connected);
+        paintBadge();
         return { ok: true };
       case KIND.getState:
         return {
@@ -108,6 +114,15 @@ export default defineBackground(() => {
         await setManyShared(ids, Boolean(msg.shared));
         await pushSharedTabs();
         return { tabs: await enumeratePopupTabs() };
+      }
+      case KIND.activateTab: {
+        // Jump Chrome to a tab (focus its window + select it).
+        const tab = await chrome.tabs.get(Number(msg.tabId));
+        await chrome.tabs.update(Number(msg.tabId), { active: true });
+        if (tab.windowId != null) {
+          await chrome.windows.update(tab.windowId, { focused: true });
+        }
+        return { ok: true };
       }
       case KIND.settingsChanged:
         // Tell the offscreen doc to reconnect with the new port/label.
@@ -148,12 +163,11 @@ export default defineBackground(() => {
   // harmless if the offscreen/socket isn't there (the offscreen forwards to a
   // possibly-null peer, a no-op).
   async function pushSharedTabs(): Promise<void> {
+    const tabs = await enumerateSharedTabs();
+    sharedCount = tabs.length;
+    paintBadge();
     chrome.runtime
-      .sendMessage({
-        to: TO.offscreen,
-        kind: KIND.tabsPush,
-        tabs: await enumerateSharedTabs(),
-      })
+      .sendMessage({ to: TO.offscreen, kind: KIND.tabsPush, tabs })
       .catch(() => {});
   }
 
@@ -182,7 +196,10 @@ export default defineBackground(() => {
     }
   });
 
-  const boot = () => void ensureOffscreen().then(syncStatus);
+  const boot = () => {
+    void ensureOffscreen().then(syncStatus);
+    void pushSharedTabs(); // seed the badge count + hand the socket its tabs
+  };
   chrome.runtime.onStartup.addListener(boot);
   chrome.runtime.onInstalled.addListener(boot);
   boot();

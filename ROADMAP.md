@@ -48,10 +48,10 @@ Deferred (need a bigger change / empirical check):
 
 ## Next — UX quick wins (popup & feedback)
 
-- [ ] Toolbar badge shows the **shared count** (e.g. `3`) instead of `on`
-- [ ] Search auto-focus on open; keyboard nav (arrows move, Enter toggles, Esc clears)
-- [ ] Shared tabs pinned to a "Shared" group on top (or a Shared-only filter chip)
-- [ ] "Go to tab" affordance on row hover (jump Chrome to that tab)
+- [x] Toolbar badge shows the **shared count** (e.g. `3`) instead of `on`
+- [x] Search auto-focus on open; keyboard nav (arrows move, Enter toggles, Esc clears)
+- [x] Shared tabs pinned to a "Shared" group on top
+- [x] "Go to tab" affordance on row hover (jump Chrome to that tab)
 - [ ] First-run tip card (share a tab → say "on tab 1, …")
 - [ ] Sensitive-site nudge when sharing banking/auth pages
 - [ ] Live "AI is acting here" pulse on the row (needs server→extension activity signal)

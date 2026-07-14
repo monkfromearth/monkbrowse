@@ -1,6 +1,6 @@
 {
   "name": "@monkbrowse/extension",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Monkbrowse Chrome extension — connects one Chrome profile to the MCP server",
   "private": true,
   "type": "module",

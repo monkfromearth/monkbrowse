@@ -7,96 +7,117 @@
     <title>monkbrowse</title>
     <style>
       :root {
-        --text: #202124;
-        --muted: #5f6368;
-        --border: #e3e3e7;
-        --panel: #f6f6f8;
+        --text: #17182b;
+        --muted: #6b7280;
+        --faint: #aeb2bd;
+        --border: #ececf1;
+        --hover: #f6f6fa;
+        --active: #eef1fd;
         --accent: #4b57c4;
-        --accent-hover: #3f4ab0;
+        --chip-bg: #ecedfb;
+        --chip-fg: #3a3f9e;
         --green: #1a8f3c;
-        --active: #f2f4fd;
+        --grad: linear-gradient(90deg, #e9a294, #a2abde 68%, #88b2ec);
+        --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
       }
       * { box-sizing: border-box; }
       html, body { margin: 0; background: #fff; }
       body {
-        width: 320px;
-        font: 13px/1.45 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+        width: 380px;
+        font: 13px/1.5 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
         color: var(--text);
         -webkit-font-smoothing: antialiased;
       }
 
-      header { display: flex; align-items: center; gap: 8px; padding: 12px 14px 10px; }
+      header { display: flex; align-items: center; gap: 9px; padding: 15px 16px 12px; }
       header img { width: 22px; height: 22px; }
-      header .brand { font-size: 14px; font-weight: 600; flex: 1; }
-      .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
-      .status .dot { width: 8px; height: 8px; border-radius: 50%; background: #c4c6cc; }
-      .status.live { color: var(--green); }
-      .status.live .dot { background: var(--green); }
+      .brand { font-size: 15px; font-weight: 650; letter-spacing: -0.01em; flex: 1; }
+      .stat { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+      .stat .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); }
+      .stat.live { color: var(--green); }
+      .stat.live .dot { background: var(--green); box-shadow: 0 0 0 3px rgba(26,143,60,0.14); }
 
-      .lead { margin: 0 14px 10px; font-size: 12px; color: var(--muted); line-height: 1.4; }
-      .lead b { color: var(--text); font-weight: 600; }
+      .head { display: flex; align-items: baseline; justify-content: space-between; padding: 4px 16px 6px; }
+      .head .t { font-size: 13px; font-weight: 650; }
+      .head .c { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+      .hint { margin: 0 16px 6px; font-size: 12px; color: var(--muted); }
 
-      section { padding: 0 14px; }
-      .tabs-head { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 0 6px; }
-      .tabs-head .t { font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted); }
-      .count { font-size: 11px; color: var(--muted); }
-      .list { max-height: 260px; overflow-y: auto; margin: 0 -6px; }
-      .row { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; padding: 6px 6px; border-radius: 7px; }
+      .list { max-height: 460px; overflow-y: auto; padding: 2px 8px 6px; }
+      .list::-webkit-scrollbar { width: 8px; }
+      .list::-webkit-scrollbar-thumb { background: #e2e2e8; border-radius: 8px; }
+
+      .row {
+        display: grid; grid-template-columns: 32px 1fr 40px; align-items: center; gap: 11px;
+        width: 100%; text-align: left; border: 0; background: transparent; color: inherit;
+        padding: 9px 8px; border-radius: 11px; cursor: pointer; font: inherit;
+        transition: background 0.15s ease;
+      }
+      .row:hover { background: var(--hover); }
       .row.active { background: var(--active); }
-      .badge {
-        min-width: 30px; height: 22px; padding: 0 6px; border-radius: 6px; background: var(--accent); color: #fff;
-        display: grid; place-items: center; font-size: 12px; font-weight: 700;
-      }
-      .badge.off { background: var(--panel); color: #b7b9c2; font-weight: 500; }
-      input.share { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; margin: 0; }
-      .meta { min-width: 0; }
-      .title { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .host { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .host .live { color: var(--green); }
-      .empty { color: var(--muted); font-size: 12px; padding: 8px 6px; }
-      .foot { margin: 8px 0 12px; font-size: 11px; color: var(--muted); line-height: 1.4; }
-      .foot b { color: var(--text); font-weight: 600; }
+      .row:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-      details.conn { border-top: 1px solid var(--border); padding: 0; }
-      details.conn > summary {
-        list-style: none; cursor: pointer; padding: 10px 14px; font-size: 12px; color: var(--muted);
-        display: flex; align-items: center; gap: 6px;
-      }
+      .num { justify-self: center; font: 700 12px var(--mono); color: var(--chip-fg); background: var(--chip-bg); border-radius: 7px; padding: 3px 6px; min-width: 26px; text-align: center; }
+      .num.off { background: transparent; color: var(--faint); font-weight: 400; }
+
+      .meta { min-width: 0; }
+      .title { font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .sub { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+      .host { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .live-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+      .sw { justify-self: end; position: relative; width: 38px; height: 22px; border-radius: 999px; background: #d6d7de; flex: none; transition: background 0.18s ease; }
+      .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(20,16,28,0.28); transition: transform 0.18s ease; }
+      .row[aria-pressed="true"] .sw { background: var(--grad); }
+      .row[aria-pressed="true"] .sw::after { transform: translateX(16px); }
+
+      .empty { color: var(--muted); font-size: 13px; padding: 18px 16px; text-align: center; }
+
+      details.conn { border-top: 1px solid var(--border); }
+      details.conn > summary { list-style: none; cursor: pointer; padding: 11px 16px; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+      details.conn > summary:hover { color: var(--text); }
       details.conn > summary::-webkit-details-marker { display: none; }
-      details.conn > summary::before { content: "▸"; font-size: 10px; }
-      details.conn[open] > summary::before { content: "▾"; }
+      .caret { transition: transform 0.15s ease; flex: none; }
+      details.conn[open] .caret { transform: rotate(90deg); }
       details.conn > summary b { color: var(--text); font-weight: 600; }
-      .conn-body { padding: 0 14px 14px; }
-      .fields { display: flex; gap: 8px; }
-      .field { display: flex; flex-direction: column; gap: 4px; }
-      .field.port { width: 78px; flex: none; }
+      .conn-body { padding: 2px 16px 15px; }
+      .fields { display: flex; gap: 9px; }
+      .field { display: flex; flex-direction: column; gap: 5px; }
+      .field.port { width: 84px; flex: none; }
       .field.grow { flex: 1; }
       label { font-size: 11px; font-weight: 600; color: var(--muted); }
-      input.txt { font: inherit; color: var(--text); background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 7px 8px; width: 100%; }
-      input.txt:focus { outline: none; border-color: var(--accent); }
-      button.primary { margin-top: 10px; width: 100%; cursor: pointer; color: #fff; font: inherit; font-weight: 600; border: 0; border-radius: 6px; padding: 8px; background: var(--accent); }
-      button.primary:hover { background: var(--accent-hover); }
-      .saved { height: 13px; margin-top: 6px; text-align: center; font-size: 11px; color: var(--green); opacity: 0; transition: opacity 0.15s; }
+      input.txt { font: inherit; color: var(--text); background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 8px 9px; width: 100%; }
+      input.txt:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(75,87,196,0.15); }
+      button.save { margin-top: 11px; width: 100%; cursor: pointer; color: #fff; font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: 9px; background: var(--accent); transition: background 0.15s ease; }
+      button.save:hover { background: #3f4ab0; }
+      .saved { height: 14px; margin-top: 7px; text-align: center; font-size: 11px; color: var(--green); opacity: 0; transition: opacity 0.15s; }
       .saved.show { opacity: 1; }
+      .conn-note { margin: 9px 0 0; font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+      @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
     </style>
   </head>
   <body>
     <header>
       <img src="/icon/48.png" alt="" />
       <span class="brand">monkbrowse</span>
-      <span class="status" id="pill"><span class="dot"></span><span id="statusText">…</span></span>
+      <span class="stat" id="stat" title="Connection to the local monkbrowse server">
+        <span class="dot"></span><span id="statText">…</span>
+      </span>
     </header>
 
-    <p class="lead" id="lead"></p>
+    <div class="head">
+      <span class="t">Tabs the AI can use</span>
+      <span class="c" id="count"></span>
+    </div>
+    <p class="hint" id="hint" hidden>Flip a tab on to let the AI use it.</p>
 
-    <section class="tabs">
-      <div class="tabs-head"><span class="t">Share tabs with the AI</span><span id="tabCount" class="count"></span></div>
-      <div id="tabList" class="list"></div>
-      <p class="foot">Toggle a tab to share it. Shared tabs get a number like <b>#1</b> — then say “on <b>tab&nbsp;1</b>, …”. Everything else stays private.</p>
-    </section>
+    <div id="list" class="list" role="list"></div>
 
     <details class="conn">
-      <summary>Connection <span id="connSummary"></span></summary>
+      <summary>
+        <svg class="caret" width="9" height="9" viewBox="0 0 8 8" fill="none" aria-hidden="true"><path d="M2 1l4 3-4 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Connection <span id="connSummary"></span>
+      </summary>
       <div class="conn-body">
         <div class="fields">
           <div class="field port">
@@ -108,9 +129,9 @@
             <input id="label" class="txt" type="text" placeholder="Work, Personal…" />
           </div>
         </div>
-        <button id="save" class="primary">Save &amp; reconnect</button>
+        <button id="save" class="save">Save &amp; reconnect</button>
         <div id="saved" class="saved">Reconnecting…</div>
-        <p class="foot" style="margin-bottom:0">One port per Chrome profile (9222, 9223…). The extension connects automatically; only change this to run a second profile.</p>
+        <p class="conn-note">One port per Chrome profile (9222, 9223…). The extension connects on its own; only change this to run a second profile.</p>
       </div>
     </details>
 

@@ -4,12 +4,12 @@ import type { PopupTab } from "../../lib/tabs";
 
 const portInput = document.getElementById("port") as HTMLInputElement;
 const labelInput = document.getElementById("label") as HTMLInputElement;
-const pill = document.getElementById("pill")!;
-const statusText = document.getElementById("statusText")!;
-const lead = document.getElementById("lead")!;
+const stat = document.getElementById("stat")!;
+const statText = document.getElementById("statText")!;
+const list = document.getElementById("list")!;
+const count = document.getElementById("count")!;
+const hint = document.getElementById("hint")!;
 const saved = document.getElementById("saved")!;
-const tabList = document.getElementById("tabList")!;
-const tabCount = document.getElementById("tabCount")!;
 const connSummary = document.getElementById("connSummary")!;
 
 async function bg(kind: string, extra: Record<string, unknown> = {}): Promise<unknown> {
@@ -20,39 +20,8 @@ async function bg(kind: string, extra: Record<string, unknown> = {}): Promise<un
       | undefined;
     return res?.ok ? res.result : undefined;
   } catch {
-    // service worker briefly unavailable; treat as no result
     return undefined;
   }
-}
-
-function displayLabel(port: number, label: string): string {
-  return label.trim() || `Chrome (${port})`;
-}
-
-function paintStatus(connected: boolean, port: number, label: string): void {
-  pill.classList.toggle("live", connected);
-  statusText.textContent = connected ? "Connected" : "Not connected";
-  connSummary.textContent = `· port ${port} · ${displayLabel(port, label)}`;
-  lead.replaceChildren();
-  const strong = document.createElement("b");
-  if (connected) {
-    strong.textContent = "Connected to the AI server.";
-    lead.append(strong, " Share the tabs you want it to use below.");
-  } else {
-    strong.textContent = "Not connected.";
-    lead.append(
-      strong,
-      " Is the monkbrowse server running? Check the port under Connection.",
-    );
-  }
-}
-
-async function refreshStatus(): Promise<void> {
-  const [{ port, label }, state] = await Promise.all([
-    getIdentity(),
-    bg(KIND.getState) as Promise<{ connected: boolean } | undefined>,
-  ]);
-  paintStatus(Boolean(state?.connected), port, label);
 }
 
 function hostOf(url: string): string {
@@ -63,59 +32,84 @@ function hostOf(url: string): string {
   }
 }
 
+function displayLabel(port: number, label: string): string {
+  return label.trim() || `Chrome (${port})`;
+}
+
+async function refreshStatus(): Promise<void> {
+  const [{ port, label }, state] = await Promise.all([
+    getIdentity(),
+    bg(KIND.getState) as Promise<{ connected: boolean } | undefined>,
+  ]);
+  const connected = Boolean(state?.connected);
+  stat.classList.toggle("live", connected);
+  statText.textContent = connected ? "Connected" : "Offline";
+  connSummary.textContent = `· ${displayLabel(port, label)} · port ${port}`;
+}
+
+function tabRow(t: PopupTab): HTMLButtonElement {
+  const row = document.createElement("button");
+  row.className = `row${t.active ? " active" : ""}`;
+  row.setAttribute("role", "listitem");
+  row.setAttribute("aria-pressed", String(t.shared));
+  row.setAttribute(
+    "aria-label",
+    `${t.shared ? "Shared" : "Not shared"}: ${t.title || hostOf(t.url)}`,
+  );
+
+  const num = document.createElement("span");
+  num.className = `num${t.shared ? "" : " off"}`;
+  num.textContent = t.shared && t.slot != null ? `#${t.slot}` : "·";
+
+  const meta = document.createElement("span");
+  meta.className = "meta";
+  const title = document.createElement("div");
+  title.className = "title";
+  title.textContent = t.title || "(untitled)"; // textContent: page titles are untrusted
+  const sub = document.createElement("div");
+  sub.className = "sub";
+  const host = document.createElement("span");
+  host.className = "host";
+  host.textContent = hostOf(t.url);
+  sub.append(host);
+  if (t.active) {
+    const dot = document.createElement("span");
+    dot.className = "live-dot";
+    dot.title = "Active tab";
+    sub.append(dot);
+  }
+  meta.append(title, sub);
+
+  const sw = document.createElement("span");
+  sw.className = "sw";
+  sw.setAttribute("aria-hidden", "true");
+
+  row.append(num, meta, sw);
+  row.addEventListener("click", async () => {
+    const next = !(row.getAttribute("aria-pressed") === "true");
+    row.setAttribute("aria-pressed", String(next)); // optimistic
+    const res = (await bg(KIND.toggleShare, { tabId: t.tabId, shared: next })) as
+      | { tabs: PopupTab[] }
+      | undefined;
+    if (res) renderTabs(res.tabs);
+  });
+  return row;
+}
+
 function renderTabs(tabs: PopupTab[]): void {
-  tabList.replaceChildren();
+  list.replaceChildren();
   const shared = tabs.filter((t) => t.shared).length;
-  tabCount.textContent = tabs.length ? `${shared} shared` : "";
+  count.textContent = tabs.length ? `${shared} of ${tabs.length} shared` : "";
+  hint.hidden = !(tabs.length > 0 && shared === 0);
+
   if (!tabs.length) {
     const empty = document.createElement("div");
     empty.className = "empty";
-    empty.textContent = "No tabs.";
-    tabList.append(empty);
+    empty.textContent = "No open tabs.";
+    list.append(empty);
     return;
   }
-
-  for (const t of tabs) {
-    const row = document.createElement("div");
-    row.className = `row${t.active ? " active" : ""}`;
-
-    const badge = document.createElement("div");
-    badge.className = `badge${t.shared ? "" : " off"}`;
-    badge.textContent = t.shared && t.slot != null ? `#${t.slot}` : "–";
-
-    const meta = document.createElement("div");
-    meta.className = "meta";
-    const title = document.createElement("div");
-    title.className = "title";
-    title.textContent = t.title || "(untitled)"; // textContent: page titles are untrusted
-    const host = document.createElement("div");
-    host.className = "host";
-    host.textContent = hostOf(t.url);
-    if (t.active) {
-      const live = document.createElement("span");
-      live.className = "live";
-      live.textContent = " · active";
-      host.append(live);
-    }
-    meta.append(title, host);
-
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.className = "share";
-    cb.checked = t.shared;
-    cb.title = t.shared ? "Shared with the AI" : "Share with the AI";
-    cb.addEventListener("change", async () => {
-      cb.disabled = true;
-      const res = (await bg(KIND.toggleShare, {
-        tabId: t.tabId,
-        shared: cb.checked,
-      })) as { tabs: PopupTab[] } | undefined;
-      if (res) renderTabs(res.tabs);
-    });
-
-    row.append(badge, meta, cb);
-    tabList.append(row);
-  }
+  for (const t of tabs) list.append(tabRow(t));
 }
 
 async function loadTabs(): Promise<void> {

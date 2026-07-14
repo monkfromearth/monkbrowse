@@ -26,7 +26,9 @@ export async function getIdentity(): Promise<Identity> {
     typeof s[STORAGE.port] === "number"
       ? (s[STORAGE.port] as number)
       : mcpConfig.basePort;
-  const label = (s[STORAGE.label] as string | undefined) ?? "";
+  let label = (s[STORAGE.label] as string | undefined) ?? "";
+  // Migrate the old dev-y default so it doesn't linger in existing installs.
+  if (/^Profile @\d+$/.test(label)) label = "";
 
   return { profileId, port, label };
 }

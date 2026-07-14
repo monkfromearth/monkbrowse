@@ -94,6 +94,15 @@ Click **Submit for review**. First reviews typically take a few days. On approva
 https://chromewebstore.google.com/detail/monkbrowse/<ITEM_ID>
 ```
 
-## 7. After approval — flip the links
+## 7. Status — submitted
 
-Give me the `<ITEM_ID>` and I will swap the placeholder store URL (`chromewebstore.google.com/detail/monkbrowse`) for the real one in the docs Install page, both READMEs, and getting-started.
+Submitted and **pending review**. Item ID: `ilkfoegakbcdibloiddkcbnpgjkgjgmd`.
+Live URL (works once approved):
+
+```
+https://chromewebstore.google.com/detail/monkbrowse/ilkfoegakbcdibloiddkcbnpgjkgjgmd
+```
+
+This real URL is already wired into `@monkbrowse/config` (popup "Rate" link), the
+docs Install page, and getting-started. On approval, drop the "Listing in review"
+note on the docs Install page.

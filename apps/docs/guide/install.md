@@ -5,6 +5,8 @@ Two small steps and you are done. No config files to hand-edit unless you want t
 1. **Add the monkbrowse server to your AI client** (one click or one command below).
 2. **Install the Chrome extension** and share a tab.
 
+![monkbrowse popup — pick which tabs the AI can use](/screenshot-1.png)
+
 The server runs straight from npm with `npx` (or `bunx` / `pnpm dlx`), so there is nothing to download or build. Your AI client starts it automatically.
 
 ::: tip You do not need to read any source
@@ -121,7 +123,7 @@ pnpm dlx monkbrowse
 
 monkbrowse drives your real Chrome, so it needs a small extension in the browser. Install it from the Chrome Web Store in one click, and it auto-updates:
 
-<a href="https://chromewebstore.google.com/detail/monkbrowse"><img alt="Add monkbrowse to Chrome" src="https://img.shields.io/badge/Add%20to%20Chrome-monkbrowse-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" height="34"></a>
+<a href="https://chromewebstore.google.com/detail/monkbrowse/ilkfoegakbcdibloiddkcbnpgjkgjgmd"><img alt="Add monkbrowse to Chrome" src="https://img.shields.io/badge/Add%20to%20Chrome-monkbrowse-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" height="34"></a>
 
 Then pin the monkbrowse icon so it is easy to reach.
 

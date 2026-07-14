@@ -46,9 +46,10 @@ Deferred (need a bigger change / empirical check):
 - [x] `npm publish` — 0.2.0 live; **0.2.1 (rich README + CLI cmds) pending a 2FA OTP**
 - [x] Store submission prep: playbook (`docs/CHROME-WEBSTORE.md`), zip, listing copy,
       permission justifications, live privacy policy page
-- [ ] Chrome Web Store: submit for review, then swap the placeholder store URL
-      (`chromewebstore.google.com/detail/monkbrowse`) for the real `/<ITEM_ID>` everywhere
-- [ ] Screenshots (1280×800) for the store listing + README demo GIF
+- [x] Chrome Web Store: **submitted** (ID `ilkfoegakbcdibloiddkcbnpgjkgjgmd`, pending
+      review); real store URL swapped into config, docs, and getting-started
+- [x] Store screenshots + promo tiles generated (`store-assets/`), shown across the
+      READMEs and docs site (hero + galleries)
 - [ ] CI: GitHub Actions running `typecheck · test · build · lint` on push
 - [x] Flip repo public; docs site live at monkfromearth.github.io/monkbrowse/ (Pages via Actions)
 

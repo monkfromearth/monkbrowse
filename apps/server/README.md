@@ -56,6 +56,12 @@ Because it is *your* Chrome, your sessions, cookies, and 2FA are already there, 
 
 **You choose what the AI can see.** By default it sees *nothing*. Each tab has a **Share** toggle in the popup; only shared tabs get a number and become drivable. Your banking tab stays invisible, and a tool call against an unshared tab is refused.
 
+## See it
+
+| ![By default it sees nothing](https://raw.githubusercontent.com/monkfromearth/monkbrowse/main/store-assets/screenshot-2.png) | ![Watch it work, tab by tab](https://raw.githubusercontent.com/monkfromearth/monkbrowse/main/store-assets/screenshot-3.png) |
+|:--:|:--:|
+| **By default, it sees nothing** — you choose per tab | **Watch it work** — a live badge shows the active tab |
+
 ## Install
 
 Two small steps. No path juggling, no build.

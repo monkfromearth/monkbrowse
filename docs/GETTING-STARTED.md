@@ -24,7 +24,7 @@ One-click buttons and the exact spot each client keeps this are on the **[Instal
 
 ## 2. Install the extension in your first profile
 
-Install monkbrowse from the **[Chrome Web Store](https://chromewebstore.google.com/detail/monkbrowse)** (one click, auto-updates). Then:
+Install monkbrowse from the **[Chrome Web Store](https://chromewebstore.google.com/detail/monkbrowse/ilkfoegakbcdibloiddkcbnpgjkgjgmd)** (one click, auto-updates). Then:
 
 1. Click the **monkbrowse** toolbar icon — the popup opens.
 2. Set a **Port** (e.g. `9222`) and a **Label** (e.g. `Work`), then **Connect**.

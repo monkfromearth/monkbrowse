@@ -5,8 +5,9 @@ export const appConfig = {
   docsUrl: "https://monkfromearth.github.io/monkbrowse",
   /** Source repo. */
   repoUrl: "https://github.com/monkfromearth/monkbrowse",
-  /** Chrome Web Store listing. Swap to the /<ITEM_ID> URL once the listing is live. */
-  webStoreUrl: "https://chromewebstore.google.com/detail/monkbrowse",
+  /** Chrome Web Store listing. */
+  webStoreUrl:
+    "https://chromewebstore.google.com/detail/monkbrowse/ilkfoegakbcdibloiddkcbnpgjkgjgmd",
 } as const;
 
 export type AppConfig = typeof appConfig;

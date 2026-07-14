@@ -66,6 +66,12 @@ The trade-off: it drives a browser you can see, one action at a time per tab (li
 
 **You choose what the AI can see.** By default it sees *nothing*. Each tab has a **Share** toggle in the popup; only shared tabs get a number and become drivable. Your banking tab stays invisible, and a tool call against an unshared tab is refused.
 
+## See it
+
+| ![By default it sees nothing](./store-assets/screenshot-2.png) | ![Watch it work, tab by tab](./store-assets/screenshot-3.png) |
+|:--:|:--:|
+| **By default, it sees nothing** — you choose per tab | **Watch it work** — a live badge shows the active tab |
+
 ## Install
 
 Two small steps. No path juggling, no build. The server runs from npm with `npx`; your AI app launches it for you. Full guide with every client: **[Install docs](https://monkfromearth.github.io/monkbrowse/guide/install)**.

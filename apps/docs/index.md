@@ -29,3 +29,17 @@ features:
   - title: 22 tools, shadow-DOM aware
     details: Navigate, click, type, scroll, screenshot, and run JS. Snapshots pierce shadow DOM and same-origin iframes; concurrent across tabs.
 ---
+
+## See it
+
+**Pick the tabs the AI can use.** Only shared tabs become visible to the AI, and each gets a number so you can say "use tab 1."
+
+![monkbrowse popup — pick which tabs the AI can use](/screenshot-1.png)
+
+**By default, it sees nothing.** Every tab has a share toggle; flip one on to let the AI use it. Your banking tab stays invisible.
+
+![Every tab has a share toggle](/screenshot-2.png)
+
+**Watch it work, tab by tab.** A live indicator shows exactly which tab the AI is acting on, right now.
+
+![Live indicator of the tab the AI is acting on](/screenshot-3.png)

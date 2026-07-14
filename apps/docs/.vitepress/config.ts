@@ -4,6 +4,8 @@ export default defineConfig({
   title: "monkbrowse",
   description:
     "One MCP server drives your real Chrome across many tabs and profiles — the tabs you choose to share. Logged in, real fingerprint, no relaunch.",
+  // GitHub Pages project site: served under /monkbrowse/. Swap to "/" for a custom domain.
+  base: "/monkbrowse/",
   cleanUrls: true,
   // Included docs use repo-relative links (LICENSE, .claude/…) that only resolve
   // on GitHub, not on the site. Don't fail the build on them.
@@ -15,6 +17,7 @@ export default defineConfig({
     logo: "/logo.svg",
     nav: [
       { text: "Get started", link: "/guide/getting-started" },
+      { text: "Use cases", link: "/guide/use-cases" },
       { text: "Tools", link: "/guide/tools" },
       { text: "Architecture", link: "/guide/architecture" },
     ],
@@ -23,7 +26,15 @@ export default defineConfig({
         text: "Guide",
         items: [
           { text: "Get started", link: "/guide/getting-started" },
+          { text: "Use cases", link: "/guide/use-cases" },
           { text: "Tool reference", link: "/guide/tools" },
+        ],
+      },
+      {
+        text: "Concepts",
+        items: [
+          { text: "Sharing tabs", link: "/guide/sharing" },
+          { text: "Connections & profiles", link: "/guide/connection" },
         ],
       },
       {

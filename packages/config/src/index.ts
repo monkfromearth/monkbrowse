@@ -1,4 +1,4 @@
-export { appConfig, type AppConfig } from "./app.config";
+export { appConfig, type AppConfig, docsPage } from "./app.config";
 export {
   mcpConfig,
   type McpConfig,

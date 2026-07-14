@@ -1,3 +1,5 @@
+import { docsPage } from "@monkbrowse/config";
+
 import { KIND, TO } from "../../lib/constants";
 import { getIdentity, saveSettings } from "../../lib/identity";
 import type { PopupTab } from "../../lib/tabs";
@@ -14,8 +16,11 @@ const count = document.getElementById("count")!;
 const hint = document.getElementById("hint")!;
 const saved = document.getElementById("saved")!;
 const connSummary = document.getElementById("connSummary")!;
+const ctx = document.getElementById("ctx")!;
 
 let allTabs: PopupTab[] = [];
+let connected = false;
+let activeIds: number[] = [];
 
 async function bg(kind: string, extra: Record<string, unknown> = {}): Promise<unknown> {
   try {
@@ -46,10 +51,42 @@ async function refreshStatus(): Promise<void> {
     getIdentity(),
     bg(KIND.getState) as Promise<{ connected: boolean } | undefined>,
   ]);
-  const connected = Boolean(state?.connected);
+  connected = Boolean(state?.connected);
   stat.classList.toggle("live", connected);
   statText.textContent = connected ? "Connected" : "Offline";
   connSummary.textContent = `· ${displayLabel(port, label)} · port ${port}`;
+  updateContext();
+}
+
+/** The one-line status strip: live activity beats "offline" beats hidden. */
+function updateContext(): void {
+  ctx.replaceChildren();
+  const acting = activeIds.length
+    ? allTabs.find((t) => activeIds.includes(t.tabId))
+    : undefined;
+  if (acting) {
+    ctx.className = "ctx acting";
+    ctx.hidden = false;
+    const pulse = document.createElement("span");
+    pulse.className = "pulse";
+    const label = acting.slot != null ? `#${acting.slot}` : hostOf(acting.url);
+    const b = document.createElement("b");
+    b.textContent = label;
+    ctx.append(pulse, document.createTextNode("AI is working on "), b);
+    if (acting.slot != null) {
+      ctx.append(document.createTextNode(` · ${hostOf(acting.url)}`));
+    }
+  } else if (!connected && allTabs.length) {
+    ctx.className = "ctx warn";
+    ctx.hidden = false;
+    ctx.textContent = "Not connected. Start your AI client to link this Chrome.";
+  } else {
+    ctx.hidden = true;
+  }
+}
+
+function openDocs(path: string): void {
+  void chrome.tabs.create({ url: docsPage(path) });
 }
 
 const GLOBE =
@@ -77,7 +114,8 @@ function faviconEl(t: PopupTab): Element {
 
 function tabRow(t: PopupTab): HTMLDivElement {
   const row = document.createElement("div");
-  row.className = `row${t.active ? " active" : ""}`;
+  row.className = `row${t.active ? " active" : ""}${activeIds.includes(t.tabId) ? " acting" : ""}`;
+  row.dataset.tab = String(t.tabId);
   row.setAttribute("role", "button");
   row.tabIndex = 0;
   row.setAttribute("aria-pressed", String(t.shared));
@@ -208,11 +246,40 @@ function render(): void {
 function setTabs(tabs: PopupTab[]): void {
   allTabs = tabs;
   render();
+  updateContext();
 }
 
 async function loadTabs(): Promise<void> {
   const res = (await bg(KIND.listTabs)) as { tabs: PopupTab[] } | undefined;
   setTabs(res?.tabs ?? []);
+}
+
+// --- live "AI is acting here": poll while the popup is open ---
+function applyActivity(): void {
+  const set = new Set(activeIds);
+  for (const row of list.querySelectorAll<HTMLElement>(".row")) {
+    row.classList.toggle("acting", set.has(Number(row.dataset.tab)));
+  }
+  updateContext();
+}
+
+async function pollActivity(): Promise<void> {
+  const res = (await bg(KIND.getActivity)) as { active: number[] } | undefined;
+  const next = res?.active ?? [];
+  // Only touch the DOM when the set actually changes (avoids needless reflow).
+  if (next.length !== activeIds.length || next.some((id) => !activeIds.includes(id))) {
+    activeIds = next;
+    applyActivity();
+  }
+}
+
+// Wire every info affordance (data-doc) to open the matching docs page.
+for (const el of document.querySelectorAll<HTMLElement>("[data-doc]")) {
+  el.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // don't toggle the <details> summary
+    openDocs(el.dataset.doc!);
+  });
 }
 
 // --- keyboard: search-first, arrow through rows, Esc clears or closes ---
@@ -277,6 +344,8 @@ async function load(): Promise<void> {
   labelInput.value = label;
   await Promise.all([refreshStatus(), loadTabs()]);
   search.focus(); // land in the search box so you can filter immediately
+  void pollActivity();
+  setInterval(() => void pollActivity(), 700);
 }
 
 document.getElementById("save")!.addEventListener("click", async () => {

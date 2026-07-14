@@ -52,10 +52,11 @@ Deferred (need a bigger change / empirical check):
 - [x] Search auto-focus on open; keyboard nav (arrows move, Enter toggles, Esc clears)
 - [x] Shared tabs pinned to a "Shared" group on top
 - [x] "Go to tab" affordance on row hover (jump Chrome to that tab)
+- [x] Live "AI is acting here" pulse on the row + a live context strip naming the tab
+- [x] Dark mode for the popup (follows the OS theme)
+- [x] (i) info icons on "shared" + "connection" linking to the docs concept pages
 - [ ] First-run tip card (share a tab → say "on tab 1, …")
 - [ ] Sensitive-site nudge when sharing banking/auth pages
-- [ ] Live "AI is acting here" pulse on the row (needs server→extension activity signal)
-- [ ] Dark mode for the popup
 - [ ] "Always share this site" per-site rules
 
 ## Later — capability & platform
@@ -70,6 +71,7 @@ Deferred (need a bigger change / empirical check):
 
 ## Docs & site
 
-- [ ] `apps/docs` VitePress site (landing + guides) — serves `docs/*.md`
-- [ ] Host (GitHub Pages once public, or Vercel/Cloudflare) at a real domain
+- [x] `apps/docs` VitePress site (landing + guides) — serves `docs/*.md`
+- [x] Concept pages: Use cases, Sharing tabs, Connections & profiles (plain-English "why")
+- [ ] Host on GitHub Pages (`monkfromearth.github.io/monkbrowse/`, base already set) — needs repo public + Pages/Actions
 - [ ] Demo GIF/video for README + store listing

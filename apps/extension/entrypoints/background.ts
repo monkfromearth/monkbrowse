@@ -14,6 +14,11 @@ export default defineBackground(() => {
   let currentLabel = "";
   let pushTimer: ReturnType<typeof setTimeout> | null = null;
 
+  // Recent AI activity per tab, so the popup can show "AI is working here".
+  // tabId -> last-acted timestamp (ms). Read within a short window, then forget.
+  const ACTIVITY_WINDOW_MS = 2500;
+  const activity = new Map<number, number>();
+
   // --- offscreen document (owns the WebSocket, survives SW suspension) ---
   // Several startup paths call this at once (onStartup/onInstalled/alarm/init);
   // dedupe so we never race two createDocument() calls (Chrome allows only one).
@@ -80,11 +85,16 @@ export default defineBackground(() => {
     [k: string]: unknown;
   }): Promise<unknown> {
     switch (msg.kind) {
-      case KIND.exec:
-        return execWire(
+      case KIND.exec: {
+        const result = await execWire(
           String(msg.type),
           (msg.payload as Record<string, unknown>) ?? {},
         );
+        // Stamp the tab the AI just acted on (the executor echoes the resolved id).
+        const actedTab = (result as { tabId?: unknown } | null)?.tabId;
+        if (typeof actedTab === "number") activity.set(actedTab, Date.now());
+        return result;
+      }
       case KIND.helloInfo: {
         const hello = await buildHello();
         currentPort = hello.assignedPort;
@@ -103,6 +113,15 @@ export default defineBackground(() => {
         };
       case KIND.listTabs:
         return { tabs: await enumeratePopupTabs() };
+      case KIND.getActivity: {
+        const now = Date.now();
+        const active: number[] = [];
+        for (const [id, at] of activity) {
+          if (now - at < ACTIVITY_WINDOW_MS) active.push(id);
+          else activity.delete(id); // prune stale entries as we go
+        }
+        return { active };
+      }
       case KIND.toggleShare: {
         await setShared(Number(msg.tabId), Boolean(msg.shared));
         await pushSharedTabs();

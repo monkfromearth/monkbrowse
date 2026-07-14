@@ -28,22 +28,22 @@
       },
     },
     "apps/server": {
-      "name": "@monkbrowse/server",
+      "name": "monkbrowse",
       "version": "0.2.0",
       "bin": {
         "monkbrowse": "dist/index.js",
       },
       "dependencies": {
         "@modelcontextprotocol/sdk": "^1.8.0",
-        "@monkbrowse/config": "workspace:*",
-        "@monkbrowse/messaging": "workspace:*",
-        "@monkbrowse/protocol": "workspace:*",
-        "@monkbrowse/utils": "workspace:*",
         "commander": "^13.1.0",
         "ws": "^8.18.1",
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@monkbrowse/config": "workspace:*",
+        "@monkbrowse/messaging": "workspace:*",
+        "@monkbrowse/protocol": "workspace:*",
+        "@monkbrowse/utils": "workspace:*",
         "@types/node": "^22.10.0",
         "@types/ws": "^8.18.0",
         "shx": "^0.3.4",
@@ -179,8 +179,6 @@
     "@monkbrowse/messaging": ["@monkbrowse/messaging@workspace:packages/messaging"],
 
     "@monkbrowse/protocol": ["@monkbrowse/protocol@workspace:packages/protocol"],
-
-    "@monkbrowse/server": ["@monkbrowse/server@workspace:apps/server"],
 
     "@monkbrowse/utils": ["@monkbrowse/utils@workspace:packages/utils"],
 
@@ -783,6 +781,8 @@
     "minimist": ["minimist@1.2.8", "", {}, "sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA=="],
 
     "mlly": ["mlly@1.8.2", "", { "dependencies": { "acorn": "^8.16.0", "pathe": "^2.0.3", "pkg-types": "^1.3.1", "ufo": "^1.6.3" } }, "sha512-d+ObxMQFmbt10sretNDytwt85VrbkhhUA/JBGm1MPaWJ65Cl4wOgLaB1NYvJSZ0Ef03MMEU/0xpPMXUIQ29UfA=="],
+
+    "monkbrowse": ["monkbrowse@workspace:apps/server"],
 
     "ms": ["ms@2.1.3", "", {}, "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA=="],
 

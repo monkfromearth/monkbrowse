@@ -1,7 +1,25 @@
 {
-  "name": "@monkbrowse/server",
+  "name": "monkbrowse",
   "version": "0.2.0",
-  "description": "MCP server for browser automation across multiple Chrome tabs and profiles",
+  "description": "MCP server that drives your real Chrome across many tabs and profiles. Pairs with the monkbrowse Chrome extension.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "browser",
+    "chrome",
+    "automation",
+    "ai",
+    "claude",
+    "cursor"
+  ],
+  "homepage": "https://github.com/monkfromearth/monkbrowse",
+  "bugs": "https://github.com/monkfromearth/monkbrowse/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/monkfromearth/monkbrowse.git",
+    "directory": "apps/server"
+  },
+  "license": "Apache-2.0",
   "type": "module",
   "bin": {
     "monkbrowse": "dist/index.js"
@@ -9,25 +27,32 @@
   "files": [
     "dist"
   ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "test": "bun test",
     "dev": "bun run --watch src/index.ts",
     "doctor": "bun run src/doctor.ts",
     "build": "tsup && shx chmod +x dist/*.js",
     "typecheck": "tsc --noEmit",
-    "inspector": "bunx @modelcontextprotocol/inspector bun dist/index.js"
+    "inspector": "bunx @modelcontextprotocol/inspector bun dist/index.js",
+    "prepublishOnly": "tsup && shx chmod +x dist/*.js"
   },
   "dependencies": {
-    "@monkbrowse/config": "workspace:*",
-    "@monkbrowse/messaging": "workspace:*",
-    "@monkbrowse/protocol": "workspace:*",
-    "@monkbrowse/utils": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.8.0",
     "commander": "^13.1.0",
     "ws": "^8.18.1",
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@monkbrowse/config": "workspace:*",
+    "@monkbrowse/messaging": "workspace:*",
+    "@monkbrowse/protocol": "workspace:*",
+    "@monkbrowse/utils": "workspace:*",
     "@types/node": "^22.10.0",
     "@types/ws": "^8.18.0",
     "shx": "^0.3.4",

@@ -212,19 +212,20 @@
       .seg-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
       /* Help */
-      .section-h { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint); margin: 16px 4px 4px; }
-      .section-h:first-child { margin-top: 4px; }
+      .section-h { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint); margin: 18px 0 8px; }
+      .section-h:first-child { margin-top: 2px; }
       .linkrow { display: flex; align-items: center; gap: 11px; width: 100%; text-align: left; border: 0; background: transparent; color: inherit; font: inherit; padding: 9px 8px; border-radius: 9px; cursor: pointer; }
       .linkrow:hover { background: var(--hover); }
       .linkrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
       .lr-ico { flex: none; width: 20px; display: grid; place-items: center; color: var(--muted); }
       .linkrow:hover .lr-ico { color: var(--accent); }
-      .lr-main { flex: 1; min-width: 0; }
-      .lr-title { font-size: 13px; font-weight: 500; }
-      .lr-sub { font-size: 11px; color: var(--muted); }
+      .lr-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+      .lr-title { font-size: 13px; font-weight: 550; }
+      .lr-sub { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
       .lr-sub.done { color: var(--green); font-weight: 600; }
       .lr-arrow { flex: none; color: var(--faint); }
-      .about { margin: 18px 8px 0; padding-top: 12px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); line-height: 1.7; }
+      .about { margin: 18px 8px 0; padding-top: 12px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); line-height: 1.6; }
+      .about .about-row + .about-row { margin-top: 3px; }
       .about a { color: var(--accent); text-decoration: none; cursor: pointer; }
       .about a:hover { text-decoration: underline; }
 
@@ -313,7 +314,7 @@
         <p class="section-h">Learn</p>
         <button class="linkrow" type="button" data-doc="/guide/getting-started">
           <span class="lr-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 4h9a2 2 0 012 2v14H7a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 8h6M8 11h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-          <span class="lr-main"><span class="lr-title">Get started</span></span>
+          <span class="lr-main"><span class="lr-title">Get started</span><span class="lr-sub">Install and first run</span></span>
           <span class="lr-arrow"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3h7v7M13 3L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </button>
         <button class="linkrow" type="button" data-doc="/guide/sharing">
@@ -328,14 +329,14 @@
         </button>
         <button class="linkrow" type="button" data-doc="/guide/use-cases">
           <span class="lr-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 4h9a2 2 0 012 2v14H7a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 8h6M8 11h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-          <span class="lr-main"><span class="lr-title">Use cases</span></span>
+          <span class="lr-main"><span class="lr-title">Use cases</span><span class="lr-sub">What people build with it</span></span>
           <span class="lr-arrow"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3h7v7M13 3L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </button>
 
         <p class="section-h">Support monkbrowse</p>
         <button class="linkrow" type="button" data-url="store">
           <span class="lr-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.2l1-5.8L3.5 9.2l5.9-.9L12 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
-          <span class="lr-main"><span class="lr-title">Rate on the Chrome Web Store</span><span class="lr-sub">A review helps a ton</span></span>
+          <span class="lr-main"><span class="lr-title">Enjoying monkbrowse?</span><span class="lr-sub">Leave a rating on the Chrome Web Store</span></span>
           <span class="lr-arrow"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3h7v7M13 3L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </button>
         <button class="linkrow" type="button" id="copyLink">
@@ -344,17 +345,18 @@
         </button>
         <button class="linkrow" type="button" data-url="x">
           <span class="lr-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="6" cy="12" r="2.4" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="6" r="2.4" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="18" r="2.4" stroke="currentColor" stroke-width="1.5"/><path d="M8.2 10.9l6.6-3.4M8.2 13.1l6.6 3.4" stroke="currentColor" stroke-width="1.5"/></svg></span>
-          <span class="lr-main"><span class="lr-title">Share on X</span></span>
+          <span class="lr-main"><span class="lr-title">Share on X</span><span class="lr-sub">Post about it in one click</span></span>
           <span class="lr-arrow"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3h7v7M13 3L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </button>
         <button class="linkrow" type="button" data-url="repo">
           <span class="lr-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.2l1-5.8L3.5 9.2l5.9-.9L12 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
-          <span class="lr-main"><span class="lr-title">Star on GitHub</span></span>
+          <span class="lr-main"><span class="lr-title">Star on GitHub</span><span class="lr-sub">Help others find it</span></span>
           <span class="lr-arrow"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3h7v7M13 3L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </button>
 
         <div class="about">
-          monkbrowse <span id="ver"></span> · <a data-doc="/">Docs</a> · <a data-url="repo">GitHub</a> · <a data-doc="/privacy">Privacy</a>
+          <div class="about-row">Built by <a data-url="https://monkfrom.earth">@monkfromearth</a></div>
+          <div class="about-row">monkbrowse <span id="ver"></span> · <a data-doc="/">Docs</a> · <a data-url="repo">GitHub</a> · <a data-doc="/privacy">Privacy</a></div>
         </div>
       </div>
     </section>

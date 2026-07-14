@@ -1,0 +1,18 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="monkbrowse">
+  <title>monkbrowse</title>
+  <defs>
+    <linearGradient id="mb" x1="10" y1="64" x2="118" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#EF9E8E"/>
+      <stop offset="0.45" stop-color="#C2A4CD"/>
+      <stop offset="0.75" stop-color="#9AA6E4"/>
+      <stop offset="1" stop-color="#7AA8F0"/>
+    </linearGradient>
+  </defs>
+  <!-- one bold browser window; thick strokes so it reads at 16px -->
+  <rect x="14" y="24" width="100" height="80" rx="18"
+        stroke="url(#mb)" stroke-width="12" fill="none"/>
+  <path d="M14 54 H114" stroke="url(#mb)" stroke-width="11" stroke-linecap="round"/>
+  <circle cx="32" cy="40" r="4.6" fill="url(#mb)"/>
+  <circle cx="48" cy="40" r="4.6" fill="url(#mb)"/>
+  <circle cx="64" cy="40" r="4.6" fill="url(#mb)"/>
+</svg>

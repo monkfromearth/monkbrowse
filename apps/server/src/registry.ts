@@ -37,7 +37,7 @@ function freshConnection(port: number): ProfileConnection {
     port,
     peer: null,
     profileId: null,
-    label: `Profile @${port}`,
+    label: `Chrome (${port})`,
     status: "disconnected",
     connectedAt: null,
     tabs: new Map(),
@@ -116,7 +116,7 @@ export class ConnectionRegistry {
 
     conn.peer = peer;
     conn.profileId = hello.profileId;
-    conn.label = hello.label || `Profile @${port}`;
+    conn.label = hello.label || `Chrome (${port})`;
     conn.chromeProfileName = hello.chromeProfileName;
     conn.status = "connected";
     conn.connectedAt = Date.now();

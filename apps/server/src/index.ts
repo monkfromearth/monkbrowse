@@ -11,6 +11,15 @@ import { ConnectionRegistry } from "./registry";
 import { startListeners } from "./ws-server";
 import pkg from "../package.json";
 
+// A long-running MCP server must not die on a stray error from a tool call or a
+// dropped socket. Log and keep serving; the AI sees a normal tool error instead.
+process.on("uncaughtException", (err) => {
+  debugLog("[monkbrowse] uncaught exception:", err);
+});
+process.on("unhandledRejection", (reason) => {
+  debugLog("[monkbrowse] unhandled rejection:", reason);
+});
+
 function setupExitWatchdog(cleanup: () => Promise<void>): void {
   process.stdin.on("close", async () => {
     setTimeout(() => process.exit(0), 15_000);

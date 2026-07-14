@@ -26,7 +26,7 @@ export async function getIdentity(): Promise<Identity> {
     typeof s[STORAGE.port] === "number"
       ? (s[STORAGE.port] as number)
       : mcpConfig.basePort;
-  const label = (s[STORAGE.label] as string | undefined) || `Profile @${port}`;
+  const label = (s[STORAGE.label] as string | undefined) ?? "";
 
   return { profileId, port, label };
 }

@@ -6,9 +6,11 @@ const portInput = document.getElementById("port") as HTMLInputElement;
 const labelInput = document.getElementById("label") as HTMLInputElement;
 const pill = document.getElementById("pill")!;
 const statusText = document.getElementById("statusText")!;
+const lead = document.getElementById("lead")!;
 const saved = document.getElementById("saved")!;
 const tabList = document.getElementById("tabList")!;
 const tabCount = document.getElementById("tabCount")!;
+const connSummary = document.getElementById("connSummary")!;
 
 async function bg(kind: string, extra: Record<string, unknown> = {}): Promise<unknown> {
   const res = (await chrome.runtime.sendMessage({ to: TO.bg, kind, ...extra })) as
@@ -18,14 +20,34 @@ async function bg(kind: string, extra: Record<string, unknown> = {}): Promise<un
   return res?.ok ? res.result : undefined;
 }
 
-function paintStatus(connected: boolean): void {
+function displayLabel(port: number, label: string): string {
+  return label.trim() || `Chrome (${port})`;
+}
+
+function paintStatus(connected: boolean, port: number, label: string): void {
   pill.classList.toggle("live", connected);
   statusText.textContent = connected ? "Connected" : "Not connected";
+  connSummary.textContent = `· port ${port} · ${displayLabel(port, label)}`;
+  lead.replaceChildren();
+  const strong = document.createElement("b");
+  if (connected) {
+    strong.textContent = "Connected to the AI server.";
+    lead.append(strong, " Share the tabs you want it to use below.");
+  } else {
+    strong.textContent = "Not connected.";
+    lead.append(
+      strong,
+      " Is the monkbrowse server running? Check the port under Connection.",
+    );
+  }
 }
 
 async function refreshStatus(): Promise<void> {
-  const state = (await bg(KIND.getState)) as { connected: boolean } | undefined;
-  paintStatus(Boolean(state?.connected));
+  const [{ port, label }, state] = await Promise.all([
+    getIdentity(),
+    bg(KIND.getState) as Promise<{ connected: boolean } | undefined>,
+  ]);
+  paintStatus(Boolean(state?.connected), port, label);
 }
 
 function hostOf(url: string): string {
@@ -38,8 +60,8 @@ function hostOf(url: string): string {
 
 function renderTabs(tabs: PopupTab[]): void {
   tabList.replaceChildren();
-  const sharedCount = tabs.filter((t) => t.shared).length;
-  tabCount.textContent = tabs.length ? `${sharedCount} shared` : "";
+  const shared = tabs.filter((t) => t.shared).length;
+  tabCount.textContent = tabs.length ? `${shared} shared` : "";
   if (!tabs.length) {
     const empty = document.createElement("div");
     empty.className = "empty";
@@ -54,7 +76,7 @@ function renderTabs(tabs: PopupTab[]): void {
 
     const badge = document.createElement("div");
     badge.className = `badge${t.shared ? "" : " off"}`;
-    badge.textContent = t.shared && t.slot != null ? String(t.slot) : "–";
+    badge.textContent = t.shared && t.slot != null ? `#${t.slot}` : "–";
 
     const meta = document.createElement("div");
     meta.className = "meta";
@@ -109,7 +131,7 @@ document.getElementById("save")!.addEventListener("click", async () => {
     portInput.focus();
     return;
   }
-  await saveSettings(port, labelInput.value || `Profile @${port}`);
+  await saveSettings(port, labelInput.value);
   await chrome.runtime.sendMessage({ to: TO.bg, kind: KIND.settingsChanged });
   saved.classList.add("show");
   for (const delay of [400, 900, 1600]) setTimeout(refreshStatus, delay);

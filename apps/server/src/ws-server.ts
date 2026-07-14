@@ -3,14 +3,35 @@ import { WebSocket, WebSocketServer } from "ws";
 import { mcpConfig } from "@monkbrowse/config/mcp.config";
 import { Peer } from "@monkbrowse/messaging";
 import { CONTROL, HelloSchema, TabsChangedSchema } from "@monkbrowse/protocol";
-import { wait } from "@monkbrowse/utils";
 
 import { debugLog } from "./log";
-import { isPortInUse, killStaleProcessOnPort } from "./port";
 import type { ConnectionRegistry } from "./registry";
 import { wsToPeerSocket } from "./ws-adapter";
 
 const HELLO_TIMEOUT_MS = 10_000;
+
+/** Try to bind one port; resolve the server, or null if the port is taken. */
+function bindPort(
+  registry: ConnectionRegistry,
+  port: number,
+  host: string,
+): Promise<WebSocketServer | null> {
+  return new Promise((resolve) => {
+    const wss = new WebSocketServer({ port, host });
+    wss.once("listening", () => {
+      wss.on("connection", (ws) => handleConnection(registry, port, ws));
+      resolve(wss);
+    });
+    wss.once("error", (err: NodeJS.ErrnoException) => {
+      // Port busy (another monkbrowse server, a doctor, or a zombie). Never
+      // kill it — just skip this port. Killing risks a restart/kill loop.
+      debugLog(
+        `[ws] port ${port} unavailable (${err.code ?? err.message}); skipping`,
+      );
+      resolve(null);
+    });
+  });
+}
 
 /** Bind one WebSocketServer per configured port and wire the handshake. */
 export async function startListeners(
@@ -18,21 +39,19 @@ export async function startListeners(
   ports: number[],
   host: string = mcpConfig.host,
 ): Promise<WebSocketServer[]> {
-  const servers: WebSocketServer[] = [];
-  for (const port of ports) {
-    killStaleProcessOnPort(port);
-    let tries = 0;
-    while ((await isPortInUse(port, host)) && tries++ < 20) {
-      await wait(100);
-    }
-    const wss = new WebSocketServer({ port, host });
-    wss.on("connection", (ws) => handleConnection(registry, port, ws));
-    wss.on("error", (err) => debugLog(`[ws:${port}] server error:`, err));
-    servers.push(wss);
-  }
-  debugLog(
-    `[ws] listening on ${host}:${ports[0]}-${ports[ports.length - 1]} (${ports.length} profile ports)`,
+  const bound = await Promise.all(
+    ports.map((port) => bindPort(registry, port, host)),
   );
+  const servers = bound.filter((s): s is WebSocketServer => s !== null);
+  if (servers.length === 0) {
+    debugLog(
+      `[ws] no ports free in ${host}:${ports[0]}-${ports[ports.length - 1]} — is another monkbrowse server already running?`,
+    );
+  } else {
+    debugLog(
+      `[ws] listening on ${host}:${ports[0]}-${ports[ports.length - 1]} (${servers.length}/${ports.length} ports)`,
+    );
+  }
   return servers;
 }
 

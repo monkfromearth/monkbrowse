@@ -19,13 +19,13 @@
       * { box-sizing: border-box; }
       html, body { margin: 0; background: #fff; }
       body {
-        width: 300px;
+        width: 320px;
         font: 13px/1.45 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
         color: var(--text);
         -webkit-font-smoothing: antialiased;
       }
 
-      header { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+      header { display: flex; align-items: center; gap: 8px; padding: 12px 14px 10px; }
       header img { width: 22px; height: 22px; }
       header .brand { font-size: 14px; font-weight: 600; flex: 1; }
       .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
@@ -33,46 +33,51 @@
       .status.live { color: var(--green); }
       .status.live .dot { background: var(--green); }
 
-      section { padding: 12px 14px; }
-      .conn { border-bottom: 1px solid var(--border); }
-      .fields { display: flex; gap: 8px; }
-      .field { display: flex; flex-direction: column; gap: 4px; }
-      .field.port { width: 76px; flex: none; }
-      .field.grow { flex: 1; }
-      label { font-size: 11px; font-weight: 600; color: var(--muted); }
-      input {
-        font: inherit; color: var(--text); background: #fff;
-        border: 1px solid var(--border); border-radius: 6px; padding: 7px 8px; width: 100%;
-      }
-      input:focus { outline: none; border-color: var(--accent); }
+      .lead { margin: 0 14px 10px; font-size: 12px; color: var(--muted); line-height: 1.4; }
+      .lead b { color: var(--text); font-weight: 600; }
 
-      button.primary {
-        margin-top: 10px; width: 100%; cursor: pointer; color: #fff; font: inherit; font-weight: 600;
-        border: 0; border-radius: 6px; padding: 8px; background: var(--accent);
-      }
-      button.primary:hover { background: var(--accent-hover); }
-      .saved { height: 13px; margin-top: 6px; text-align: center; font-size: 11px; color: var(--green); opacity: 0; transition: opacity 0.15s; }
-      .saved.show { opacity: 1; }
-
-      .tabs-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
-      .tabs-head .t { font-size: 11px; font-weight: 600; color: var(--muted); }
+      section { padding: 0 14px; }
+      .tabs-head { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 0 6px; }
+      .tabs-head .t { font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted); }
       .count { font-size: 11px; color: var(--muted); }
-      .list { max-height: 240px; overflow-y: auto; margin: 0 -6px; }
-      .row { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; padding: 6px 6px; border-radius: 6px; }
+      .list { max-height: 260px; overflow-y: auto; margin: 0 -6px; }
+      .row { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; padding: 6px 6px; border-radius: 7px; }
       .row.active { background: var(--active); }
       .badge {
-        width: 22px; height: 22px; border-radius: 6px; background: var(--accent); color: #fff;
+        min-width: 30px; height: 22px; padding: 0 6px; border-radius: 6px; background: var(--accent); color: #fff;
         display: grid; place-items: center; font-size: 12px; font-weight: 700;
       }
       .badge.off { background: var(--panel); color: #b7b9c2; font-weight: 500; }
-      input.share { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; margin: 0; }
+      input.share { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; margin: 0; }
       .meta { min-width: 0; }
       .title { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .host { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .host .live { color: var(--green); }
       .empty { color: var(--muted); font-size: 12px; padding: 8px 6px; }
-      .foot { margin: 10px 0 0; font-size: 11px; color: var(--muted); }
+      .foot { margin: 8px 0 12px; font-size: 11px; color: var(--muted); line-height: 1.4; }
       .foot b { color: var(--text); font-weight: 600; }
+
+      details.conn { border-top: 1px solid var(--border); padding: 0; }
+      details.conn > summary {
+        list-style: none; cursor: pointer; padding: 10px 14px; font-size: 12px; color: var(--muted);
+        display: flex; align-items: center; gap: 6px;
+      }
+      details.conn > summary::-webkit-details-marker { display: none; }
+      details.conn > summary::before { content: "▸"; font-size: 10px; }
+      details.conn[open] > summary::before { content: "▾"; }
+      details.conn > summary b { color: var(--text); font-weight: 600; }
+      .conn-body { padding: 0 14px 14px; }
+      .fields { display: flex; gap: 8px; }
+      .field { display: flex; flex-direction: column; gap: 4px; }
+      .field.port { width: 78px; flex: none; }
+      .field.grow { flex: 1; }
+      label { font-size: 11px; font-weight: 600; color: var(--muted); }
+      input.txt { font: inherit; color: var(--text); background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 7px 8px; width: 100%; }
+      input.txt:focus { outline: none; border-color: var(--accent); }
+      button.primary { margin-top: 10px; width: 100%; cursor: pointer; color: #fff; font: inherit; font-weight: 600; border: 0; border-radius: 6px; padding: 8px; background: var(--accent); }
+      button.primary:hover { background: var(--accent-hover); }
+      .saved { height: 13px; margin-top: 6px; text-align: center; font-size: 11px; color: var(--green); opacity: 0; transition: opacity 0.15s; }
+      .saved.show { opacity: 1; }
     </style>
   </head>
   <body>
@@ -82,26 +87,32 @@
       <span class="status" id="pill"><span class="dot"></span><span id="statusText">…</span></span>
     </header>
 
-    <section class="conn">
-      <div class="fields">
-        <div class="field port">
-          <label for="port">Port</label>
-          <input id="port" type="number" min="1" max="65535" inputmode="numeric" />
-        </div>
-        <div class="field grow">
-          <label for="label">Label</label>
-          <input id="label" type="text" placeholder="Work, Personal…" />
-        </div>
-      </div>
-      <button id="save" class="primary">Connect</button>
-      <div id="saved" class="saved">Reconnecting…</div>
-    </section>
+    <p class="lead" id="lead"></p>
 
     <section class="tabs">
-      <div class="tabs-head"><span class="t">Tabs</span><span id="tabCount" class="count"></span></div>
+      <div class="tabs-head"><span class="t">Share tabs with the AI</span><span id="tabCount" class="count"></span></div>
       <div id="tabList" class="list"></div>
-      <p class="foot">Toggle a tab to <b>share</b> it with the AI. Only shared tabs get a number — then say “on <b>tab&nbsp;2</b>, …”.</p>
+      <p class="foot">Toggle a tab to share it. Shared tabs get a number like <b>#1</b> — then say “on <b>tab&nbsp;1</b>, …”. Everything else stays private.</p>
     </section>
+
+    <details class="conn">
+      <summary>Connection <span id="connSummary"></span></summary>
+      <div class="conn-body">
+        <div class="fields">
+          <div class="field port">
+            <label for="port">Port</label>
+            <input id="port" class="txt" type="number" min="1" max="65535" inputmode="numeric" />
+          </div>
+          <div class="field grow">
+            <label for="label">Name (optional)</label>
+            <input id="label" class="txt" type="text" placeholder="Work, Personal…" />
+          </div>
+        </div>
+        <button id="save" class="primary">Save &amp; reconnect</button>
+        <div id="saved" class="saved">Reconnecting…</div>
+        <p class="foot" style="margin-bottom:0">One port per Chrome profile (9222, 9223…). The extension connects automatically; only change this to run a second profile.</p>
+      </div>
+    </details>
 
     <script type="module" src="./main.ts"></script>
   </body>

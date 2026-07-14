@@ -14,11 +14,11 @@
 </p>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/monkbrowse"><img alt="npm" src="https://img.shields.io/npm/v/monkbrowse?color=cb3837&logo=npm"></a>
   <a href="./LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue"></a>
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6">
   <img alt="Bun" src="https://img.shields.io/badge/Bun-1.3-black">
   <img alt="MCP compatible" src="https://img.shields.io/badge/MCP-compatible-6E56CF">
-  <img alt="Status: pre-release" src="https://img.shields.io/badge/status-pre--release-orange">
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@
 
 ---
 
-> **Status: pre-release, not on npm yet.** You build it locally and load the extension unpacked. Everything below reflects the current local-build flow. Anything that only works "once published" is labelled as such. Full docs live at **[monkfromearth.github.io/monkbrowse](https://monkfromearth.github.io/monkbrowse/)**.
+> **Live on npm: `npx -y monkbrowse`.** The server publishes to npm; the Chrome extension is loaded unpacked for now (Web Store listing in review). Full docs: **[monkfromearth.github.io/monkbrowse](https://monkfromearth.github.io/monkbrowse/)**.
 
 ## What it is
 
@@ -101,7 +101,7 @@ monkbrowse drives your real Chrome, so it needs a small extension:
 
 Open the popup, toggle a tab **on** (it gets a number like `#1`), and tell the AI *"on tab 1, do X."* The AI only ever sees tabs you shared. For multiple Chrome profiles, give each its own port in the popup ([why](https://monkfromearth.github.io/monkbrowse/guide/connection)).
 
-> **Status:** publishing to npm now. Until it lands, the one-click configs above install once the package is live; you can also [build from source](#build-from-source) today.
+> The one-click configs above work today (`monkbrowse` is on npm). Prefer to hack on it? [Build from source](#build-from-source).
 
 ## Quickstart
 
@@ -201,7 +201,7 @@ Two hard rules for this repo: the **server stays Node-compatible** (no `Bun.*` i
 
 ## Status
 
-Server and extension build, typecheck, and pass ~96 tests, including a headless-DOM harness that exercises the real DOM engine (shadow DOM, iframes, actions), a fake-`chrome` layer that drives the real executor, and a full loop (MCP tool → server → messaging → executor → real DOM) with no browser involved. **Real-Chrome verification (service-worker survival, cross-origin iframes, snapshot tuning on complex pages) is the remaining step** before a public release.
+The server is **published on npm** (`npx -y monkbrowse`); the extension runs unpacked while its **Chrome Web Store listing is in review**. Server and extension build, typecheck, and pass ~96 tests, including a headless-DOM harness that exercises the real DOM engine (shadow DOM, iframes, actions), a fake-`chrome` layer that drives the real executor, and a full loop (MCP tool → server → messaging → executor → real DOM) with no browser involved. Ongoing hardening: cross-origin iframes and snapshot tuning on complex SPAs.
 
 ## Credits
 

@@ -4,43 +4,31 @@ Get monkbrowse driving your real Chrome — one profile first, then many.
 
 ## Prerequisites
 
-- **Bun** ≥ 1.2 (`curl -fsSL https://bun.sh/install | bash`)
+- **Node** (for `npx`) — or Bun / pnpm if you prefer `bunx` / `pnpm dlx`
 - **Chrome** (or any Chromium browser with MV3 + offscreen support)
 - An MCP client: Claude, Cursor, VS Code (agent mode), Windsurf, or the MCP Inspector
 
-## 1. Build
+## 1. Add the server to your MCP client
 
-```bash
-bun install
-bun run build
-```
-
-This produces:
-- **Server:** `apps/server/dist/index.js` (a Node-compatible bin, command `monkbrowse`)
-- **Extension:** `apps/extension/dist/chrome-mv3/` (unpacked, ready to load)
-
-## 2. Add the server to your MCP client
+The server is on npm, so your client just runs it — nothing to download or build:
 
 ```jsonc
 {
   "mcpServers": {
-    "monkbrowse": {
-      "command": "bun",
-      "args": ["/absolute/path/to/apps/server/dist/index.js"]
-    }
+    "monkbrowse": { "command": "npx", "args": ["-y", "monkbrowse"] }
   }
 }
 ```
 
-Once published to npm you can use `{ "command": "npx", "args": ["monkbrowse"] }` instead.
+One-click buttons and the exact spot each client keeps this are on the **[Install page](https://monkfromearth.github.io/monkbrowse/guide/install)**. Options (rarely needed): `--base-port <n>` (default `9222`) and `--ports <count>` (default `20`) set the profile port range.
 
-Options (rarely needed): `--base-port <n>` (default `9222`) and `--ports <count>` (default `20`) set the profile port range.
+## 2. Load the extension in your first profile
 
-## 3. Load the extension in your first profile
+Download the latest `monkbrowse-*.zip` from [releases](https://github.com/monkfromearth/monkbrowse/releases) and unzip it (or build from source and use `apps/extension/dist/chrome-mv3`). Then:
 
 1. Open `chrome://extensions`.
 2. Turn on **Developer mode** (top right).
-3. **Load unpacked** → select `apps/extension/dist/chrome-mv3`.
+3. **Load unpacked** → select the unzipped folder.
 4. Click the **monkbrowse** toolbar icon — the popup opens.
 5. Set a **Port** (e.g. `9222`) and a **Label** (e.g. `Work`), click **Connect**.
 6. The status reads **Connected** once it reaches a running server.
@@ -51,7 +39,7 @@ Options (rarely needed): `--base-port <n>` (default `9222`) and `--ports <count>
 
 ## Quick check — is the extension connecting?
 
-Run the doctor. It's a bare server that just prints who connects:
+If you cloned the repo, run the doctor — a bare server that just prints who connects (skip this if you installed via npx):
 
 ```bash
 bun run doctor
@@ -101,7 +89,7 @@ Ask the AI (or use the MCP Inspector: `bun run --cwd apps/server inspector`):
 
 | Symptom | Cause / fix |
 |---|---|
-| "No browser profile is connected" | The extension isn't connected. Open its popup — badge should say **on**; if not, click **Reconnect** or check the port matches the server range. |
+| "No browser profile is connected" | The extension isn't connected. Open its popup — the status dot should be green **Connected**; if not, check your MCP client is running or that the port matches the server range. |
 | "Port 9222 is already in use by profile …" | Two profiles picked the same port. Change one in its Settings. |
 | Tool hangs then times out | The target tab is a `chrome://` / Web Store page (Chrome blocks scripting there), or the service worker was asleep — retry; it reconnects. |
 | Badge flips on/off | Normal MV3 service-worker cycling; the offscreen socket + alarm reconnect keep it alive. Persistent flapping → check the server is running on that port. |

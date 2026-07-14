@@ -1,6 +1,6 @@
 {
   "name": "monkbrowse",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "MCP server that drives your real Chrome across many tabs and profiles. Pairs with the monkbrowse Chrome extension.",
   "keywords": [
     "mcp",

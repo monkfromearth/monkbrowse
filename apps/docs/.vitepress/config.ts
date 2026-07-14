@@ -11,7 +11,9 @@ export default defineConfig({
   // on GitHub, not on the site. Don't fail the build on them.
   ignoreDeadLinks: true,
   head: [
-    ["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+    // Head links are NOT auto-prefixed with `base`, so include /monkbrowse/ or
+    // the favicon 404s on the project Pages site. Keep in sync with `base`.
+    ["link", { rel: "icon", type: "image/svg+xml", href: "/monkbrowse/favicon.svg" }],
   ],
   themeConfig: {
     logo: "/logo.svg",

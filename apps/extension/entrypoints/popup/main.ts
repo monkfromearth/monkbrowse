@@ -1,4 +1,4 @@
-import { docsPage } from "@monkbrowse/config";
+import { appConfig, docsPage } from "@monkbrowse/config";
 
 import { KIND, TO } from "../../lib/constants";
 import { getIdentity, saveSettings } from "../../lib/identity";
@@ -59,7 +59,7 @@ async function refreshStatus(): Promise<void> {
   connected = Boolean(state?.connected);
   stat.classList.toggle("live", connected);
   statText.textContent = connected ? "Connected" : "Offline";
-  connSummary.textContent = `· ${displayLabel(port, label)} · port ${port}`;
+  connSummary.textContent = `${connected ? "Connected" : "Offline"} · ${displayLabel(port, label)} · port ${port}`;
   updateContext();
 }
 
@@ -98,9 +98,21 @@ function updateContext(): void {
   }
 }
 
-function openDocs(path: string): void {
-  void chrome.tabs.create({ url: docsPage(path) });
+function openUrl(url: string): void {
+  void chrome.tabs.create({ url });
 }
+function openDocs(path: string): void {
+  openUrl(docsPage(path));
+}
+
+// Named external targets used by [data-url] link rows in the Help tab.
+const SHARE_TEXT =
+  "monkbrowse lets your AI drive the Chrome tabs you choose to share. Logged in, local, private.";
+const NAMED_URLS: Record<string, string> = {
+  store: appConfig.webStoreUrl,
+  repo: appConfig.repoUrl,
+  x: `https://twitter.com/intent/tweet?text=${encodeURIComponent(SHARE_TEXT)}&url=${encodeURIComponent(appConfig.docsUrl)}`,
+};
 
 const GLOBE =
   '<svg class="fav blank" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M3 12h18M12 3c2.5 2.4 2.5 15.6 0 18M12 3c-2.5 2.4-2.5 15.6 0 18" stroke="currentColor" stroke-width="1.6"/></svg>';
@@ -294,14 +306,68 @@ async function pollActivity(): Promise<void> {
   }
 }
 
-// Wire every info affordance (data-doc) to open the matching docs page.
+// Wire docs links (data-doc) and external links (data-url) throughout the popup.
 for (const el of document.querySelectorAll<HTMLElement>("[data-doc]")) {
   el.addEventListener("click", (e) => {
     e.preventDefault();
-    e.stopPropagation(); // don't toggle the <details> summary
+    e.stopPropagation();
     openDocs(el.dataset.doc!);
   });
 }
+for (const el of document.querySelectorAll<HTMLElement>("[data-url]")) {
+  el.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const key = el.dataset.url!;
+    openUrl(NAMED_URLS[key] ?? key);
+  });
+}
+
+// "Tell a friend" — copy the public link, with inline confirmation.
+const copyLink = document.getElementById("copyLink");
+const copySub = document.getElementById("copySub");
+copyLink?.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(appConfig.docsUrl);
+    if (copySub) {
+      copySub.textContent = "Copied!";
+      copySub.classList.add("done");
+      setTimeout(() => {
+        copySub.textContent = "Copy the link";
+        copySub.classList.remove("done");
+      }, 1600);
+    }
+  } catch {
+    openUrl(appConfig.docsUrl); // clipboard blocked — just open it
+  }
+});
+
+// --- tabs: Tabs / Settings / Help ---
+const tabButtons = [...document.querySelectorAll<HTMLElement>(".tab")];
+const panels = [...document.querySelectorAll<HTMLElement>(".panel")];
+function showTab(name: string): void {
+  for (const b of tabButtons) {
+    b.setAttribute("aria-selected", String(b.dataset.tab === name));
+  }
+  for (const p of panels) p.hidden = p.dataset.panel !== name;
+  if (name === "tabs") search.focus();
+}
+tabButtons.forEach((b, i) => {
+  b.addEventListener("click", () => showTab(b.dataset.tab!));
+  b.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      const next = (i + (e.key === "ArrowRight" ? 1 : tabButtons.length - 1)) % tabButtons.length;
+      const btn = tabButtons[next];
+      btn?.focus();
+      btn?.click();
+    }
+  });
+});
+
+// Version in the Help/About line.
+const ver = document.getElementById("ver");
+if (ver) ver.textContent = `v${chrome.runtime.getManifest().version}`;
 
 // --- keyboard: search-first, arrow through rows, Esc clears or closes ---
 function rowEls(): HTMLElement[] {

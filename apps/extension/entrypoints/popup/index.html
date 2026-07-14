@@ -59,15 +59,29 @@
         color: var(--text);
         -webkit-font-smoothing: antialiased;
       }
-      header, .head, .ctx, .bar, .hint, .tip, details.conn { flex: none; }
+      header, .tabs, .head, .ctx, .bar, .hint, .tip { flex: none; }
 
-      header { display: flex; align-items: center; gap: 9px; padding: 15px 16px 10px; }
+      header { display: flex; align-items: center; gap: 9px; padding: 15px 16px 8px; }
       header img { width: 22px; height: 22px; }
       .brand { font-size: 15px; font-weight: 650; letter-spacing: -0.01em; flex: 1; }
       .stat { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
       .stat .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); }
       .stat.live { color: var(--green); }
       .stat.live .dot { background: var(--green); box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 16%, transparent); }
+
+      /* Tab bar */
+      .tabs { display: flex; gap: 3px; padding: 0 12px 8px; }
+      .tab { flex: 1; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 600; font-size: 12.5px; padding: 7px 8px; border-radius: 8px; cursor: pointer; transition: background 0.12s ease, color 0.12s ease; }
+      .tab:hover { background: var(--hover); color: var(--text); }
+      .tab[aria-selected="true"] { background: var(--active); color: var(--accent); }
+      .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+      /* Panels: one visible at a time; each fills the column and scrolls inside. */
+      .panel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+      .panel[hidden] { display: none; }
+      .scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 2px 16px 16px; }
+      .scroll::-webkit-scrollbar, .list::-webkit-scrollbar { width: 8px; }
+      .scroll::-webkit-scrollbar-thumb, .list::-webkit-scrollbar-thumb { background: var(--scroll); border-radius: 8px; }
 
       .head { display: flex; align-items: center; gap: 6px; padding: 2px 16px 8px; }
       .head .t { font-size: 13px; font-weight: 650; }
@@ -80,7 +94,6 @@
       .ctx { display: flex; align-items: center; gap: 8px; margin: 0 16px 8px; padding: 9px 11px; border-radius: 9px; font-size: 12px; }
       .ctx .msg { flex: 1; min-width: 0; }
       .ctx.acting { background: var(--active); color: var(--text); }
-      /* Offline notice: extra bottom margin sets it apart from the tab list below. */
       .ctx.warn { background: var(--warn-bg); color: var(--warn-fg); margin-bottom: 16px; flex-wrap: wrap; }
       .ctx b { font-weight: 650; }
       .ctxlink { flex: none; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; padding: 0; white-space: nowrap; }
@@ -112,8 +125,6 @@
       .tip-x:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
       .list { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0 8px 6px; }
-      .list::-webkit-scrollbar { width: 8px; }
-      .list::-webkit-scrollbar-thumb { background: var(--scroll); border-radius: 8px; }
       .noresult { color: var(--muted); font-size: 13px; padding: 16px; text-align: center; }
 
       .group { padding: 12px 8px 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint); }
@@ -150,15 +161,9 @@
       .row[aria-pressed="true"] .sw { background: var(--grad); }
       .row[aria-pressed="true"] .sw::after { transform: translateX(16px); }
 
-      details.conn { border-top: 1px solid var(--border); }
-      details.conn > summary { list-style: none; cursor: pointer; padding: 11px 16px; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 7px; }
-      details.conn > summary:hover { color: var(--text); }
-      details.conn > summary::-webkit-details-marker { display: none; }
-      .caret { transition: transform 0.15s ease; flex: none; }
-      details.conn[open] .caret { transform: rotate(90deg); }
-      details.conn > summary b { color: var(--text); font-weight: 600; }
-      details.conn > summary .info { margin-left: auto; }
-      .conn-body { padding: 2px 16px 15px; }
+      /* Settings form */
+      .set-sum { font-size: 11px; color: var(--muted); margin: 0 0 12px; }
+      .set-sum b { color: var(--text); font-weight: 600; }
       .fields { display: flex; gap: 9px; }
       .field { display: flex; flex-direction: column; gap: 5px; }
       .field.port { width: 84px; flex: none; }
@@ -170,9 +175,26 @@
       button.save:hover { background: var(--accent-strong); }
       .saved { height: 14px; margin-top: 7px; text-align: center; font-size: 11px; color: var(--green); opacity: 0; transition: opacity 0.15s; }
       .saved.show { opacity: 1; }
-      .conn-note { margin: 9px 0 0; font-size: 11px; color: var(--muted); line-height: 1.5; }
-      .conn-note a { color: var(--accent); text-decoration: none; }
+      .conn-note { margin: 11px 0 0; font-size: 11px; color: var(--muted); line-height: 1.5; }
+      .conn-note a { color: var(--accent); text-decoration: none; cursor: pointer; }
       .conn-note a:hover { text-decoration: underline; }
+
+      /* Help */
+      .section-h { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint); margin: 16px 4px 4px; }
+      .section-h:first-child { margin-top: 4px; }
+      .linkrow { display: flex; align-items: center; gap: 11px; width: 100%; text-align: left; border: 0; background: transparent; color: inherit; font: inherit; padding: 9px 8px; border-radius: 9px; cursor: pointer; }
+      .linkrow:hover { background: var(--hover); }
+      .linkrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+      .lr-ico { flex: none; width: 20px; display: grid; place-items: center; color: var(--muted); }
+      .linkrow:hover .lr-ico { color: var(--accent); }
+      .lr-main { flex: 1; min-width: 0; }
+      .lr-title { font-size: 13px; font-weight: 500; }
+      .lr-sub { font-size: 11px; color: var(--muted); }
+      .lr-sub.done { color: var(--green); font-weight: 600; }
+      .lr-arrow { flex: none; color: var(--faint); }
+      .about { margin: 18px 8px 0; padding-top: 12px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); line-height: 1.7; }
+      .about a { color: var(--accent); text-decoration: none; cursor: pointer; }
+      .about a:hover { text-decoration: underline; }
 
       @media (prefers-reduced-motion: reduce) { *, .pulse { transition: none !important; animation: none !important; } }
     </style>
@@ -186,45 +208,50 @@
       </span>
     </header>
 
-    <div class="head">
-      <span class="t">Tabs the AI can use</span>
-      <button class="info" type="button" data-doc="/guide/sharing" title="What does sharing mean?" aria-label="Learn about sharing tabs">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="4.9" r="0.9" fill="currentColor"/></svg>
-      </button>
-      <span class="c" id="count"></span>
-    </div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab" role="tab" data-tab="tabs" aria-selected="true">Tabs</button>
+      <button class="tab" role="tab" data-tab="settings" aria-selected="false">Settings</button>
+      <button class="tab" role="tab" data-tab="help" aria-selected="false">Help</button>
+    </nav>
 
-    <div class="ctx" id="ctx" hidden></div>
-
-    <div class="bar" id="bar" hidden>
-      <span class="search">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-        <input id="search" type="text" placeholder="Search tabs" aria-label="Search tabs" />
-        <button id="clear" class="clearbtn" type="button" hidden aria-label="Clear search" title="Clear search">
-          <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-        </button>
-      </span>
-      <button id="shareAll" class="linkbtn" type="button"></button>
-    </div>
-
-    <p class="hint" id="hint" hidden>Flip a tab on to let the AI use it.</p>
-
-    <div class="tip" id="tip" hidden>
-      <span class="tip-txt">Nice — that tab is now <b>#1</b>. Tell your AI <b>“use tab 1”</b> to point it here.</span>
-      <button class="tip-x" id="tipClose" type="button" aria-label="Dismiss tip">×</button>
-    </div>
-
-    <div id="list" class="list" role="list"></div>
-
-    <details class="conn">
-      <summary>
-        <svg class="caret" width="9" height="9" viewBox="0 0 8 8" fill="none" aria-hidden="true"><path d="M2 1l4 3-4 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Connection <span id="connSummary"></span>
-        <button class="info" type="button" data-doc="/guide/connection" title="Ports & profiles explained" aria-label="Learn about connections and profiles">
+    <!-- TABS -->
+    <section class="panel" data-panel="tabs" role="tabpanel" aria-label="Tabs">
+      <div class="head">
+        <span class="t">Tabs the AI can use</span>
+        <button class="info" type="button" data-doc="/guide/sharing" title="What does sharing mean?" aria-label="Learn about sharing tabs">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="4.9" r="0.9" fill="currentColor"/></svg>
         </button>
-      </summary>
-      <div class="conn-body">
+        <span class="c" id="count"></span>
+      </div>
+
+      <div class="ctx" id="ctx" hidden></div>
+
+      <div class="bar" id="bar" hidden>
+        <span class="search">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <input id="search" type="text" placeholder="Search tabs" aria-label="Search tabs" />
+          <button id="clear" class="clearbtn" type="button" hidden aria-label="Clear search" title="Clear search">
+            <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M1 1l8 8M9 1l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+        </span>
+        <button id="shareAll" class="linkbtn" type="button"></button>
+      </div>
+
+      <p class="hint" id="hint" hidden>Flip a tab on to let the AI use it.</p>
+
+      <div class="tip" id="tip" hidden>
+        <span class="tip-txt">Nice — that tab is now <b>#1</b>. Tell your AI <b>“use tab 1”</b> to point it here.</span>
+        <button class="tip-x" id="tipClose" type="button" aria-label="Dismiss tip">×</button>
+      </div>
+
+      <div id="list" class="list" role="list"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="panel" data-panel="settings" role="tabpanel" aria-label="Settings" hidden>
+      <div class="scroll">
+        <p class="section-h">Connection</p>
+        <p class="set-sum" id="connSummary"></p>
         <div class="fields">
           <div class="field port">
             <label for="port">Port</label>
@@ -237,9 +264,61 @@
         </div>
         <button id="save" class="save">Save &amp; reconnect</button>
         <div id="saved" class="saved">Reconnecting…</div>
-        <p class="conn-note">One port per Chrome profile (9222, 9223…). The extension connects on its own; only change this to run a second profile. <a data-doc="/guide/connection" href="#">Learn more</a></p>
+        <p class="conn-note">One port per Chrome profile (9222, 9223…). The extension connects on its own; only change this to run a second profile. <a data-doc="/guide/connection">Learn more →</a></p>
       </div>
-    </details>
+    </section>
+
+    <!-- HELP -->
+    <section class="panel" data-panel="help" role="tabpanel" aria-label="Help" hidden>
+      <div class="scroll">
+        <p class="section-h">Learn</p>
+        <button class="linkrow" type="button" data-doc="/guide/getting-started">
+          <span class="lr-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 4h9a2 2 0 012 2v14H7a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 8h6M8 11h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+          <span class="lr-main"><span class="lr-title">Get started</span></span>
+          <span class="lr-arrow"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3h7v7M13 3L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </button>
+        <button class="linkrow" type="button" data-doc="/guide/sharing">
+          <span class="lr-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 4h9a2 2 0 012 2v14H7a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 8h6M8 11h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+          <span class="lr-main"><span class="lr-title">Sharing tabs</span><span class="lr-sub">What the AI can and can’t touch</span></span>
+          <span class="lr-arrow"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3h7v7M13 3L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </button>
+        <button class="linkrow" type="button" data-doc="/guide/connection">
+          <span class="lr-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 4h9a2 2 0 012 2v14H7a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 8h6M8 11h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+          <span class="lr-main"><span class="lr-title">Connections &amp; profiles</span><span class="lr-sub">Ports, names, multiple profiles</span></span>
+          <span class="lr-arrow"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3h7v7M13 3L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </button>
+        <button class="linkrow" type="button" data-doc="/guide/use-cases">
+          <span class="lr-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 4h9a2 2 0 012 2v14H7a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 8h6M8 11h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+          <span class="lr-main"><span class="lr-title">Use cases</span></span>
+          <span class="lr-arrow"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3h7v7M13 3L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </button>
+
+        <p class="section-h">Support monkbrowse</p>
+        <button class="linkrow" type="button" data-url="store">
+          <span class="lr-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.2l1-5.8L3.5 9.2l5.9-.9L12 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
+          <span class="lr-main"><span class="lr-title">Rate on the Chrome Web Store</span><span class="lr-sub">A review helps a ton</span></span>
+          <span class="lr-arrow"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3h7v7M13 3L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </button>
+        <button class="linkrow" type="button" id="copyLink">
+          <span class="lr-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 13a5 5 0 007 0l2-2a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-2 2a5 5 0 007 7l1-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+          <span class="lr-main"><span class="lr-title">Tell a friend</span><span class="lr-sub" id="copySub">Copy the link</span></span>
+        </button>
+        <button class="linkrow" type="button" data-url="x">
+          <span class="lr-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="6" cy="12" r="2.4" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="6" r="2.4" stroke="currentColor" stroke-width="1.5"/><circle cx="17" cy="18" r="2.4" stroke="currentColor" stroke-width="1.5"/><path d="M8.2 10.9l6.6-3.4M8.2 13.1l6.6 3.4" stroke="currentColor" stroke-width="1.5"/></svg></span>
+          <span class="lr-main"><span class="lr-title">Share on X</span></span>
+          <span class="lr-arrow"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3h7v7M13 3L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </button>
+        <button class="linkrow" type="button" data-url="repo">
+          <span class="lr-ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.2l1-5.8L3.5 9.2l5.9-.9L12 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
+          <span class="lr-main"><span class="lr-title">Star on GitHub</span></span>
+          <span class="lr-arrow"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3h7v7M13 3L4 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </button>
+
+        <div class="about">
+          monkbrowse <span id="ver"></span> · <a data-doc="/">Docs</a> · <a data-url="repo">GitHub</a> · <a data-doc="/privacy">Privacy</a>
+        </div>
+      </div>
+    </section>
 
     <script type="module" src="./main.ts"></script>
   </body>

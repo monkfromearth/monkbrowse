@@ -254,6 +254,7 @@ async function ensureContentScript(tabId: number): Promise<void> {
   } catch (err) {
     throw new Error(
       `Cannot control tab ${tabId} (${err instanceof Error ? err.message : "injection failed"}). Chrome blocks scripting on internal pages like chrome:// and the Web Store.`,
+      { cause: err },
     );
   }
 }

@@ -16,13 +16,16 @@
     "dev": "turbo run dev",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "lint": "turbo run lint",
+    "lint": "oxlint .",
     "package:extension": "turbo run package --filter=@monkbrowse/extension",
     "doctor": "bun run --cwd apps/server doctor",
     "dev:server": "turbo run dev --filter=monkbrowse",
-    "dev:extension": "turbo run dev --filter=@monkbrowse/extension"
+    "dev:extension": "turbo run dev --filter=@monkbrowse/extension",
+    "docs:dev": "turbo run dev --filter=@monkbrowse/docs",
+    "docs:build": "turbo run build --filter=@monkbrowse/docs"
   },
   "devDependencies": {
+    "oxlint": "^1.74.0",
     "turbo": "^2.3.0",
     "typescript": "^5.6.2"
   }

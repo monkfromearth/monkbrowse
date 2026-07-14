@@ -1,0 +1,23 @@
+<svg width="240" height="150" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="monkbrowse">
+  <title>monkbrowse</title>
+  <defs>
+    <linearGradient id="mb-warm" x1="38" y1="75" x2="204" y2="75" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#E9A294"/>
+      <stop offset="0.4" stop-color="#C2A4CD"/>
+      <stop offset="0.7" stop-color="#A2ABDE"/>
+      <stop offset="1" stop-color="#88B2EC"/>
+    </linearGradient>
+  </defs>
+
+  <!-- back surface: a second profile/window, clearly offset -->
+  <rect x="96" y="20" width="112" height="84" rx="19"
+        stroke="url(#mb-warm)" stroke-width="13" fill="none" stroke-opacity="0.5"/>
+
+  <!-- front browser window (hero) -->
+  <rect x="32" y="48" width="130" height="94" rx="22"
+        stroke="url(#mb-warm)" stroke-width="15" fill="none"/>
+  <path d="M32,80 H162" stroke="url(#mb-warm)" stroke-width="13" stroke-linecap="round"/>
+  <circle cx="55" cy="64" r="5" fill="url(#mb-warm)"/>
+  <circle cx="75" cy="64" r="5" fill="url(#mb-warm)"/>
+  <circle cx="95" cy="64" r="5" fill="url(#mb-warm)"/>
+</svg>

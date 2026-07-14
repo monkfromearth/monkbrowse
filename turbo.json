@@ -4,7 +4,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build", "prepare"],
-      "outputs": ["dist/**", ".wxt/**"]
+      "outputs": ["dist/**", ".wxt/**", ".vitepress/dist/**"]
     },
     "prepare": {
       "cache": false

@@ -86,7 +86,8 @@ export async function sharedSlots(
   await ensure();
   const open = new Set(openIds);
 
-  for (const id of [...shared!]) {
+  // Deleting the current entry while iterating a live Set is well-defined.
+  for (const id of shared!) {
     if (!open.has(id)) {
       shared!.delete(id);
       delete slots![id];

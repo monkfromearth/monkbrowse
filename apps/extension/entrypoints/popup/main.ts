@@ -10,17 +10,22 @@ const stat = document.getElementById("stat")!;
 const statText = document.getElementById("statText")!;
 const bar = document.getElementById("bar")!;
 const search = document.getElementById("search") as HTMLInputElement;
+const clearBtn = document.getElementById("clear") as HTMLButtonElement;
 const shareAllBtn = document.getElementById("shareAll") as HTMLButtonElement;
 const list = document.getElementById("list")!;
 const count = document.getElementById("count")!;
 const hint = document.getElementById("hint")!;
+const tip = document.getElementById("tip")!;
+const tipClose = document.getElementById("tipClose") as HTMLButtonElement;
 const saved = document.getElementById("saved")!;
 const connSummary = document.getElementById("connSummary")!;
 const ctx = document.getElementById("ctx")!;
 
+const TIP_KEY = "tipSeenShareNumber";
 let allTabs: PopupTab[] = [];
 let connected = false;
 let activeIds: number[] = [];
+let tipSeen = true; // assume seen until storage says otherwise (no flash)
 
 async function bg(kind: string, extra: Record<string, unknown> = {}): Promise<unknown> {
   try {
@@ -158,6 +163,8 @@ function tabRow(t: PopupTab): HTMLDivElement {
     const num = document.createElement("span");
     num.className = "num";
     num.textContent = `#${t.slot}`;
+    // Teach the mental model: the number is how you address the tab to the AI.
+    num.title = `Say "tab ${t.slot}" to point your AI at this tab`;
     end.append(num);
   }
   const go = document.createElement("button");
@@ -175,6 +182,9 @@ function tabRow(t: PopupTab): HTMLDivElement {
   const sw = document.createElement("span");
   sw.className = "sw";
   sw.setAttribute("aria-hidden", "true");
+  sw.title = t.shared
+    ? "Sharing with the AI — click to stop"
+    : "Share this tab with the AI";
   end.append(go, sw);
 
   row.append(faviconEl(t), meta, end);
@@ -210,7 +220,10 @@ function render(): void {
     ? `${shared} of ${allTabs.length} shared`
     : "";
   bar.hidden = allTabs.length === 0;
+  clearBtn.hidden = search.value.length === 0;
   hint.hidden = !(allTabs.length > 0 && shared === 0 && !term);
+  // First-share teaching moment: once they share a tab, show how to address it.
+  tip.hidden = !(shared > 0 && !tipSeen && !term);
   shareAllBtn.textContent = shared < allTabs.length ? "Share all" : "Clear";
 
   const shown = term
@@ -296,6 +309,16 @@ function rowEls(): HTMLElement[] {
 }
 
 search.addEventListener("input", render);
+clearBtn.addEventListener("click", () => {
+  search.value = "";
+  render();
+  search.focus();
+});
+tipClose.addEventListener("click", () => {
+  tipSeen = true;
+  void chrome.storage.local.set({ [TIP_KEY]: true });
+  render();
+});
 search.addEventListener("keydown", (e) => {
   if (e.key === "ArrowDown") {
     e.preventDefault();
@@ -350,6 +373,8 @@ async function load(): Promise<void> {
   const { port, label } = await getIdentity();
   portInput.value = String(port);
   labelInput.value = label;
+  const stored = await chrome.storage.local.get(TIP_KEY);
+  tipSeen = Boolean(stored[TIP_KEY]);
   await Promise.all([refreshStatus(), loadTabs()]);
   search.focus(); // land in the search box so you can filter immediately
   void pollActivity();

@@ -47,6 +47,28 @@ Add `--scope user` to make it available in every project:
 claude mcp add --scope user monkbrowse -- npx -y monkbrowse
 ```
 
+### Gemini CLI
+
+```bash
+gemini mcp add monkbrowse npx -y monkbrowse
+```
+
+Add `-s user` to install it for every project (`~/.gemini/settings.json`).
+
+### Codex CLI (OpenAI)
+
+```bash
+codex mcp add monkbrowse -- npx -y monkbrowse
+```
+
+### Cursor CLI
+
+The `cursor-agent` CLI uses the **same config as the Cursor editor** — there is no separate `mcp add` command. Use the [one-click button](#cursor) above, or add monkbrowse to `~/.cursor/mcp.json`:
+
+```json
+{ "mcpServers": { "monkbrowse": { "command": "npx", "args": ["-y", "monkbrowse"] } } }
+```
+
 ### Windsurf
 
 Settings → **Cascade → MCP servers → Add server**, then paste:

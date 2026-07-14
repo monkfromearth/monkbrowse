@@ -64,15 +64,23 @@ One-click:
 &nbsp;
 <a href="vscode:mcp/install?%7B%22name%22%3A%22monkbrowse%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22monkbrowse%22%5D%7D"><img alt="Install in VS Code" src="https://img.shields.io/badge/Install%20in-VS%20Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" height="30"></a>
 
-Or one command:
+One command, in the terminal you already use:
 
 ```bash
 # Claude Code
 claude mcp add monkbrowse -- npx -y monkbrowse
 
+# Gemini CLI
+gemini mcp add monkbrowse npx -y monkbrowse
+
+# Codex CLI (OpenAI)
+codex mcp add monkbrowse -- npx -y monkbrowse
+
 # VS Code
 code --add-mcp '{"name":"monkbrowse","command":"npx","args":["-y","monkbrowse"]}'
 ```
+
+Add `--scope user` (Claude) or `-s user` (Gemini) to install it for every project. The **Cursor CLI** shares Cursor's config — use the button above.
 
 Windsurf, Claude Desktop, or any other client — same config everywhere:
 

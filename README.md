@@ -74,11 +74,17 @@ Two small steps. No path juggling, no build. The server runs from npm with `npx`
 &nbsp;
 <a href="vscode:mcp/install?%7B%22name%22%3A%22monkbrowse%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22monkbrowse%22%5D%7D"><img alt="Install in VS Code" src="https://img.shields.io/badge/Install%20in-VS%20Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" height="30"></a>
 
-**Or one command:**
+**Or one command** (the CLI agent you already use):
 
 ```bash
 # Claude Code
 claude mcp add monkbrowse -- npx -y monkbrowse
+
+# Gemini CLI
+gemini mcp add monkbrowse npx -y monkbrowse
+
+# Codex CLI (OpenAI)
+codex mcp add monkbrowse -- npx -y monkbrowse
 
 # VS Code (also has the button above)
 code --add-mcp '{"name":"monkbrowse","command":"npx","args":["-y","monkbrowse"]}'
